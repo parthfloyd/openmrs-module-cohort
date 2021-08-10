@@ -601,9 +601,9 @@
             <column name="value_reference" type="TEXT">
                 <constraints nullable="false"/>
             </column>
-            <column name="attribute_type_id" type="int(11)">
+            <column name="cohort_member_attribute_type_id" type="int(11)">
                 <constraints nullable="false" foreignKeyName="cohort_member_attribute_type_fk"
-                             references="cohort_member_attribute_type(attribute_type_id)"/>
+                             references="cohort_member_attribute_type(cohort_member_attribute_type_id)"/>
             </column>
 
             <column name="date_created" type="datetime">
