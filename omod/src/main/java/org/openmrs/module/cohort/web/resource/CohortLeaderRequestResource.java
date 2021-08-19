@@ -1,3 +1,12 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public License,
+ * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+ * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+ *
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * graphic logo is a trademark of OpenMRS Inc.
+ */
 package org.openmrs.module.cohort.web.resource;
 
 import java.util.Date;
@@ -21,14 +30,14 @@ import org.openmrs.module.webservices.rest.web.response.ResourceDoesNotSupportOp
 import org.openmrs.module.webservices.rest.web.response.ResponseException;
 
 @Resource(name = RestConstants.VERSION_1 + CohortRest.COHORT_NAMESPACE
-		+ "/cohortleader", supportedClass = CohortLeader.class, supportedOpenmrsVersions = { "1.8 - 2.*" })
+        + "/cohortleader", supportedClass = CohortLeader.class, supportedOpenmrsVersions = { "1.8 - 2.*" })
 public class CohortLeaderRequestResource extends DataDelegatingCrudResource<CohortLeader> {
-
+	
 	@Override
 	public DelegatingResourceDescription getRepresentationDescription(Representation rep) {
 		if (Context.isAuthenticated()) {
 			DelegatingResourceDescription description = new DelegatingResourceDescription();
-
+			
 			if (rep instanceof FullRepresentation) {
 				description.addProperty("person", Representation.FULL);
 				description.addProperty("cohort");
@@ -44,12 +53,12 @@ public class CohortLeaderRequestResource extends DataDelegatingCrudResource<Coho
 				description.addProperty("uuid");
 				description.addSelfLink();
 			}
-
+			
 			return description;
 		}
 		return null;
 	}
-
+	
 	@Override
 	public DelegatingResourceDescription getCreatableProperties() {
 		DelegatingResourceDescription description = new DelegatingResourceDescription();
@@ -59,12 +68,12 @@ public class CohortLeaderRequestResource extends DataDelegatingCrudResource<Coho
 		description.addProperty("endDate");
 		return description;
 	}
-
+	
 	@Override
 	public DelegatingResourceDescription getUpdatableProperties() throws ResourceDoesNotSupportOperationException {
 		return getCreatableProperties();
 	}
-
+	
 	@Override
 	public CohortLeader save(CohortLeader cohortLeader) {
 		CohortM cohort = cohortLeader.getCohort();
@@ -75,41 +84,41 @@ public class CohortLeaderRequestResource extends DataDelegatingCrudResource<Coho
 		}
 		return Context.getService(CohortService.class).saveCohortLeader(cohortLeader);
 	}
-
+	
 	@Override
 	protected void delete(CohortLeader cohortLeader, String reason, RequestContext request) throws ResponseException {
 		cohortLeader.setVoided(true);
 		cohortLeader.setVoidReason(reason);
 		Context.getService(CohortService.class).saveCohortLeader(cohortLeader);
 	}
-
+	
 	@Override
 	public void purge(CohortLeader cohortLeader, RequestContext request) throws ResponseException {
 		Context.getService(CohortService.class).purgeCohortLeader(cohortLeader);
 	}
-
+	
 	@Override
 	public CohortLeader newDelegate() {
 		return new CohortLeader();
 	}
-
+	
 	@Override
 	public CohortLeader getByUniqueId(String id) {
 		CohortLeader obj = Context.getService(CohortService.class).getCohortLeaderByUuid(id);
-
+		
 		if (obj == null) {
 			// TODO add to API
 			// obj = Context.getService(CohortService.class).getCohortByName(id);
 		}
-
+		
 		return obj;
 	}
-
+	
 	@Override
 	protected PageableResult doSearch(RequestContext context) {
 		String cohortUuid = context.getParameter("cohort");
 		CohortM cohort = Context.getService(CohortService.class).getCohortByUuid(cohortUuid);
-
+		
 		if (cohort == null) {
 			throw new NullPointerException("No Cohort Exists with that UUID");
 		}

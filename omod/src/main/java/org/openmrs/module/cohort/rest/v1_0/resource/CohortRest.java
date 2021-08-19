@@ -1,4 +1,4 @@
-/**
+/*
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can
  * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
@@ -14,18 +14,17 @@ import org.openmrs.module.webservices.rest.web.v1_0.controller.MainResourceContr
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-
 @Controller
 @RequestMapping("/rest/" + RestConstants.VERSION_1 + CohortRest.COHORT_NAMESPACE)
 public class CohortRest extends MainResourceController {
-    /**
-     * * @see org.openmrs.module.webservices.rest.web.v1_0.controller.
-     * BaseRestController#getNamespace()
-     */
-    public static final String COHORT_NAMESPACE = "/cohortm";
-
-    @Override
-    public String getNamespace() {
-        return RestConstants.VERSION_1 + COHORT_NAMESPACE;
-    }
+	
+	/**
+	 * * @see org.openmrs.module.webservices.rest.web.v1_0.controller. BaseRestController#getNamespace()
+	 */
+	public static final String COHORT_NAMESPACE = "/cohortm";
+	
+	@Override
+	public String getNamespace() {
+		return RestConstants.VERSION_1 + COHORT_NAMESPACE;
+	}
 }

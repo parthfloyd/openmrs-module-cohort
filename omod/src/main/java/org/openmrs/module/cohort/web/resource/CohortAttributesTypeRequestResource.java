@@ -1,3 +1,12 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public License,
+ * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+ * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+ *
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * graphic logo is a trademark of OpenMRS Inc.
+ */
 package org.openmrs.module.cohort.web.resource;
 
 import java.util.List;
@@ -19,14 +28,14 @@ import org.openmrs.module.webservices.rest.web.resource.impl.NeedsPaging;
 import org.openmrs.module.webservices.rest.web.response.ResponseException;
 
 @Resource(name = RestConstants.VERSION_1 + CohortRest.COHORT_NAMESPACE
-		+ "/cohortattributetype", supportedClass = CohortAttributeType.class, supportedOpenmrsVersions = { "1.8 - 2.*" })
+        + "/cohortattributetype", supportedClass = CohortAttributeType.class, supportedOpenmrsVersions = { "1.8 - 2.*" })
 public class CohortAttributesTypeRequestResource extends DataDelegatingCrudResource<CohortAttributeType> {
-
+	
 	@Override
 	public DelegatingResourceDescription getRepresentationDescription(Representation rep) {
-
+		
 		DelegatingResourceDescription description = null;
-
+		
 		if (Context.isAuthenticated()) {
 			description = new DelegatingResourceDescription();
 			if (rep instanceof DefaultRepresentation) {
@@ -46,7 +55,7 @@ public class CohortAttributesTypeRequestResource extends DataDelegatingCrudResou
 		}
 		return description;
 	}
-
+	
 	@Override
 	public DelegatingResourceDescription getCreatableProperties() {
 		DelegatingResourceDescription description = new DelegatingResourceDescription();
@@ -55,30 +64,30 @@ public class CohortAttributesTypeRequestResource extends DataDelegatingCrudResou
 		description.addRequiredProperty("format");
 		return description;
 	}
-
+	
 	@Override
 	public CohortAttributeType save(CohortAttributeType cohortAttributeType) {
 		return Context.getService(CohortService.class).saveCohort(cohortAttributeType);
 	}
-
+	
 	@Override
 	protected void delete(CohortAttributeType cohortAttributeType, String reason, RequestContext context)
-			throws ResponseException {
+	        throws ResponseException {
 		cohortAttributeType.setVoided(true);
 		cohortAttributeType.setVoidReason(reason);
 		Context.getService(CohortService.class).saveCohort(cohortAttributeType);
 	}
-
+	
 	@Override
 	public void purge(CohortAttributeType cohortAttributeType, RequestContext context) throws ResponseException {
 		Context.getService(CohortService.class).purgeCohortAttributes(cohortAttributeType);
 	}
-
+	
 	@Override
 	public CohortAttributeType newDelegate() {
 		return new CohortAttributeType();
 	}
-
+	
 	@Override
 	public CohortAttributeType getByUniqueId(String id) {
 		CohortAttributeType obj = Context.getService(CohortService.class).getCohortAttributeTypeByUuid(id);
@@ -87,10 +96,10 @@ public class CohortAttributesTypeRequestResource extends DataDelegatingCrudResou
 		}
 		return obj;
 	}
-
+	
 	@Override
 	protected PageableResult doGetAll(RequestContext context) throws ResponseException {
 		List<CohortAttributeType> list = Context.getService(CohortService.class).getAllCohortAttributeTypes();
-		return new NeedsPaging<CohortAttributeType>(list, context);
+		return new NeedsPaging<>(list, context);
 	}
 }

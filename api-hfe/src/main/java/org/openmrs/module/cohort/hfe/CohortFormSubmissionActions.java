@@ -1,3 +1,12 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public License,
+ * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+ * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+ *
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * graphic logo is a trademark of OpenMRS Inc.
+ */
 package org.openmrs.module.cohort.hfe;
 
 import java.util.Date;
@@ -12,7 +21,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
-import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.cohort.CohortEncounter;
 import org.openmrs.module.cohort.CohortM;
@@ -41,9 +49,9 @@ public class CohortFormSubmissionActions extends FormSubmissionActions {
 	
 	private List<Encounter> encountersToEdit = new Vector<Encounter>();
 	
-	private List<Obs> obsToCreate = new Vector<Obs>();
+	private List<Obs> obsToCreate = new Vector<>();
 	
-	private List<Obs> obsToVoid = new Vector<Obs>();
+	private List<Obs> obsToVoid = new Vector<>();
 	
 	/**
 	 * The stack where state is stored
@@ -62,8 +70,8 @@ public class CohortFormSubmissionActions extends FormSubmissionActions {
 	}
 	
 	/**
-	 * Removes the most recently added Person from the submission stack. All other objects added
-	 * after that Person are removed as well.
+	 * Removes the most recently added Person from the submission stack. All other objects added after
+	 * that Person are removed as well.
 	 * <p/>
 	 * (So, in the current one-person-per-form model, this would empty the entire submission stack)
 	 *
@@ -102,8 +110,8 @@ public class CohortFormSubmissionActions extends FormSubmissionActions {
 	}
 	
 	/**
-	 * Removes the most recently added Encounter from the submission stack. All objects added after
-	 * that Encounter are removed as well.
+	 * Removes the most recently added Encounter from the submission stack. All objects added after that
+	 * Encounter are removed as well.
 	 *
 	 * @throws InvalidActionException
 	 */
@@ -150,8 +158,8 @@ public class CohortFormSubmissionActions extends FormSubmissionActions {
 	}
 	
 	/**
-	 * Utility function that adds a set of Obs to an Encounter, skipping Obs that are already part
-	 * of the Encounter
+	 * Utility function that adds a set of Obs to an Encounter, skipping Obs that are already part of
+	 * the Encounter
 	 *
 	 * @param encounter
 	 * @param group
@@ -166,8 +174,8 @@ public class CohortFormSubmissionActions extends FormSubmissionActions {
 	}
 	
 	/**
-	 * Removes the most recently added ObsGroup from the submission stack. All objects added after
-	 * that ObsGroup are removed as well.
+	 * Removes the most recently added ObsGroup from the submission stack. All objects added after that
+	 * ObsGroup are removed as well.
 	 *
 	 * @throws InvalidActionException
 	 */
@@ -203,12 +211,12 @@ public class CohortFormSubmissionActions extends FormSubmissionActions {
 	}
 	
 	/**
-	 * Utility method that returns the object of a specified class that was most recently added to
-	 * the stack
+	 * Utility method that returns the object of a specified class that was most recently added to the
+	 * stack
 	 */
 	@SuppressWarnings("unchecked")
 	private <T> T highestOnStack(Class<T> clazz) {
-		for (ListIterator<Object> iter = stack.listIterator(stack.size()); iter.hasPrevious(); ) {
+		for (ListIterator<Object> iter = stack.listIterator(stack.size()); iter.hasPrevious();) {
 			Object o = iter.previous();
 			if (clazz.isAssignableFrom(o.getClass())) {
 				return (T) o;
@@ -230,17 +238,17 @@ public class CohortFormSubmissionActions extends FormSubmissionActions {
 	}
 	
 	/**
-	 * Creates an new Obs and associates with the most recently added Person, Encounter, and
-	 * ObsGroup (if applicable) on the stack.
+	 * Creates an new Obs and associates with the most recently added Person, Encounter, and ObsGroup
+	 * (if applicable) on the stack.
 	 * <p/>
-	 * Note that this method does not actually commit the Obs to the database, but instead adds the
-	 * Obs to a list of Obs to be added. The changes are applied elsewhere in the framework.
+	 * Note that this method does not actually commit the Obs to the database, but instead adds the Obs
+	 * to a list of Obs to be added. The changes are applied elsewhere in the framework.
 	 *
-	 * @param concept         concept associated with the Obs
-	 * @param value           value for the Obs
-	 * @param datetime        date information for the Obs
+	 * @param concept concept associated with the Obs
+	 * @param value value for the Obs
+	 * @param datetime date information for the Obs
 	 * @param accessionNumber accession number for the Obs
-	 * @param comment         comment for the obs
+	 * @param comment comment for the obs
 	 * @return the Obs to create
 	 */
 	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber, String comment) {
@@ -282,22 +290,22 @@ public class CohortFormSubmissionActions extends FormSubmissionActions {
 		return createObs(concept, value, datetime, accessionNumber, null);
 	}
 	
-	
 	/**
 	 * Modifies an existing Obs.
 	 * <p/>
-	 * This method works by adding the current Obs to a list of Obs to void, and then adding the new
-	 * Obs to a list of Obs to create. Note that this method does not commit the changes to the
+	 * This method works by adding the current Obs to a list of Obs to void, and then adding the new Obs
+	 * to a list of Obs to create. Note that this method does not commit the changes to the
 	 * database--the changes are applied elsewhere in the framework.
 	 *
-	 * @param existingObs     the Obs to modify
-	 * @param concept         concept associated with the Obs
-	 * @param newValue        the new value of the Obs
-	 * @param newDatetime     the new date information for the Obs
+	 * @param existingObs the Obs to modify
+	 * @param concept concept associated with the Obs
+	 * @param newValue the new value of the Obs
+	 * @param newDatetime the new date information for the Obs
 	 * @param accessionNumber new accession number for the Obs
-	 * @param comment         comment for the obs
+	 * @param comment comment for the obs
 	 */
-	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber, String comment) {
+	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber,
+	        String comment) {
 		if (newValue == null || "".equals(newValue)) {
 			// we want to delete the existing obs
 			if (log.isDebugEnabled()) {
@@ -324,7 +332,7 @@ public class CohortFormSubmissionActions extends FormSubmissionActions {
 		// TODO: handle dates that may equal encounter date
 		boolean dateChanged = dateChangedHelper(existingObs.getObsDatetime(), newObs.getObsDatetime());
 		boolean accessionNumberChanged = accessionNumberChangedHelper(existingObs.getAccessionNumber(),
-				newObs.getAccessionNumber());
+		    newObs.getAccessionNumber());
 		boolean conceptsHaveChanged = false;
 		if (!existingObs.getConcept().getConceptId().equals(concept.getConceptId())) {
 			conceptsHaveChanged = true;
@@ -400,7 +408,6 @@ public class CohortFormSubmissionActions extends FormSubmissionActions {
 	public List<CohortM> getCohortsToCreate() {
 		return cohortsToCreate;
 	}
-	
 	
 	/**
 	 * Sets the list of Cohorts that need to be created to process form submission

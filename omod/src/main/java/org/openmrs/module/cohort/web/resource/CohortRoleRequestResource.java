@@ -1,3 +1,12 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public License,
+ * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+ * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+ *
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * graphic logo is a trademark of OpenMRS Inc.
+ */
 package org.openmrs.module.cohort.web.resource;
 
 import java.util.List;
@@ -20,14 +29,14 @@ import org.openmrs.module.webservices.rest.web.response.ResourceDoesNotSupportOp
 import org.openmrs.module.webservices.rest.web.response.ResponseException;
 
 @Resource(name = RestConstants.VERSION_1 + CohortRest.COHORT_NAMESPACE
-		+ "/cohortrole", supportedClass = CohortRole.class, supportedOpenmrsVersions = { "1.8 - 2.*" })
+        + "/cohortrole", supportedClass = CohortRole.class, supportedOpenmrsVersions = { "1.8 - 2.*" })
 public class CohortRoleRequestResource extends DataDelegatingCrudResource<CohortRole> {
-
+	
 	@Override
 	public DelegatingResourceDescription getRepresentationDescription(Representation rep) {
-
+		
 		DelegatingResourceDescription description = null;
-
+		
 		if (Context.isAuthenticated()) {
 			description = new DelegatingResourceDescription();
 			if (rep instanceof DefaultRepresentation) {
@@ -44,7 +53,7 @@ public class CohortRoleRequestResource extends DataDelegatingCrudResource<Cohort
 		}
 		return description;
 	}
-
+	
 	@Override
 	public DelegatingResourceDescription getCreatableProperties() {
 		DelegatingResourceDescription description = new DelegatingResourceDescription();
@@ -52,34 +61,34 @@ public class CohortRoleRequestResource extends DataDelegatingCrudResource<Cohort
 		description.addRequiredProperty("cohortType");
 		return description;
 	}
-
+	
 	@Override
 	public DelegatingResourceDescription getUpdatableProperties() throws ResourceDoesNotSupportOperationException {
 		return getCreatableProperties();
 	}
-
+	
 	@Override
 	public CohortRole newDelegate() {
 		return new CohortRole();
 	}
-
+	
 	@Override
 	public CohortRole save(CohortRole cohortRole) {
 		return Context.getService(CohortService.class).saveCohortRole(cohortRole);
 	}
-
+	
 	@Override
 	protected void delete(CohortRole cohortRole, String reason, RequestContext context) throws ResponseException {
 		cohortRole.setVoided(true);
 		cohortRole.setVoidReason(reason);
 		Context.getService(CohortService.class).saveCohortRole(cohortRole);
 	}
-
+	
 	@Override
 	public void purge(CohortRole cohortRole, RequestContext context) throws ResponseException {
 		Context.getService(CohortService.class).purgeCohortRole(cohortRole);
 	}
-
+	
 	@Override
 	public CohortRole getByUniqueId(String id) {
 		CohortRole obj = Context.getService(CohortService.class).getCohortRoleByUuid(id);
@@ -88,7 +97,7 @@ public class CohortRoleRequestResource extends DataDelegatingCrudResource<Cohort
 		}
 		return obj;
 	}
-
+	
 	@Override
 	protected PageableResult doGetAll(RequestContext context) throws ResponseException {
 		List<CohortRole> list = Context.getService(CohortService.class).getAllCohortRoles();

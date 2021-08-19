@@ -1,15 +1,11 @@
-/**
- * The contents of this file are subject to the OpenMRS Public License
- * Version 1.0 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://license.openmrs.org
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public License,
+ * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+ * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
  *
- * Software distributed under the License is distributed on an "AS IS"
- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
- * License for the specific language governing rights and limitations
- * under the License.
- *
- * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * graphic logo is a trademark of OpenMRS Inc.
  */
 package org.openmrs.module.cohort.api.impl;
 
@@ -60,7 +56,7 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 	public CohortDAO getDao() {
 		return dao;
 	}
- 
+	
 	/**
 	 * @param dao the dao to set
 	 */
@@ -147,7 +143,7 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 	public List<CohortM> findCohortsMatching(String nameMatching, Map<String, String> attributes, CohortType cohortType) {
 		return dao.findCohorts(nameMatching, attributes, cohortType);
 	}
- 
+	
 	@Override
 	public CohortAttribute saveCohortAttribute(CohortAttribute att) {
 		return dao.saveCohortAttributes(att);
@@ -268,7 +264,7 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 	public void purgeCohortObs(CohortObs cobs) {
 		dao.purgeCohortObs(cobs);
 	}
-
+	
 	@Override
 	public CohortObs getCohortObsById(Integer id) {
 		return dao.findCohortObs(id);
@@ -295,24 +291,18 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 	}
 	
 	@Override
-	public List<CohortEncounter> getEncounters(CohortM who, Location loc,
-			Date fromDate, Date toDate, Collection<Form> enteredViaForms,
-			Collection<EncounterType> encounterTypes, boolean includeVoided) {
-		return Context.getService(CohortService.class).getEncounters(who, loc, fromDate, toDate, enteredViaForms, encounterTypes, null, includeVoided);
+	public List<CohortEncounter> getEncounters(CohortM who, Location loc, Date fromDate, Date toDate,
+	        Collection<Form> enteredViaForms, Collection<EncounterType> encounterTypes, boolean includeVoided) {
+		return Context.getService(CohortService.class).getEncounters(who, loc, fromDate, toDate, enteredViaForms,
+		    encounterTypes, null, includeVoided);
 	}
 	
 	public List<CohortEncounter> getEncounters(CohortM who, Location loc, Date fromDate, Date toDate,
-			Collection<Form> enteredViaForms, Collection<EncounterType> encounterTypes, Collection<User> providers,
-			boolean includeVoided) {
-		EncounterSearchCriteriaBuilder encounterSearchCriteriaBuilder = new EncounterSearchCriteriaBuilder()
-				.setCohort(who)
-				.setLocation(loc)
-				.setFromDate(fromDate)
-				.setToDate(toDate)
-				.setEnteredViaForms(enteredViaForms)
-				.setEncounterTypes(encounterTypes)
-				.setProviders(usersToProviders(providers))
-				.setIncludeVoided(includeVoided);
+	        Collection<Form> enteredViaForms, Collection<EncounterType> encounterTypes, Collection<User> providers,
+	        boolean includeVoided) {
+		EncounterSearchCriteriaBuilder encounterSearchCriteriaBuilder = new EncounterSearchCriteriaBuilder().setCohort(who)
+		        .setLocation(loc).setFromDate(fromDate).setToDate(toDate).setEnteredViaForms(enteredViaForms)
+		        .setEncounterTypes(encounterTypes).setProviders(usersToProviders(providers)).setIncludeVoided(includeVoided);
 		return getEncounters(encounterSearchCriteriaBuilder.createEncounterSearchCriteria());
 	}
 	
@@ -328,10 +318,11 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 		return ret;
 	}
 	
-	public List<CohortEncounter> getEncounters(org.openmrs.module.cohort.api.db.EncounterSearchCriteria encounterSearchCriteria) {
+	public List<CohortEncounter> getEncounters(
+	        org.openmrs.module.cohort.api.db.EncounterSearchCriteria encounterSearchCriteria) {
 		// the second search parameter is null as it defaults to authenticated user from context
-		return Context.getService(CohortService.class).filterEncountersByViewPermissions(dao.getEncounters(encounterSearchCriteria),
-				null);
+		return Context.getService(CohortService.class)
+		        .filterEncountersByViewPermissions(dao.getEncounters(encounterSearchCriteria), null);
 	}
 	
 	public List<CohortEncounter> filterEncountersByViewPermissions(List<CohortEncounter> encounters, User user) {
@@ -340,7 +331,7 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 			if (user == null) {
 				user = Context.getAuthenticatedUser();
 			}
-			for (Iterator<CohortEncounter> iterator = encounters.iterator(); iterator.hasNext(); ) {
+			for (Iterator<CohortEncounter> iterator = encounters.iterator(); iterator.hasNext();) {
 				CohortEncounter encounter = iterator.next();
 				// determine whether it's need to include this encounter into result or not
 				// as it can be not accessed by current user due to permissions lack
@@ -360,8 +351,7 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 	}
 	
 	@Override
-	public List<CohortObs> getObservationsByCohortAndConcept(CohortM who,
-			Concept question) {
+	public List<CohortObs> getObservationsByCohortAndConcept(CohortM who, Concept question) {
 		List<CohortM> whom = new Vector<>();
 		if (who != null && who.getCohortId() != null) {
 			whom.add(who);
@@ -369,15 +359,14 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 		List<Concept> questions = new Vector<>();
 		questions.add(question);
 		
-		return Context.getService(CohortService.class).getObservations(whom, null, questions, null, null, null, null, null, null, null, false);
+		return Context.getService(CohortService.class).getObservations(whom, null, questions, null, null, null, null, null,
+		    null, null, false);
 	}
 	
 	@Override
-	public List<CohortObs> getObservations(List<CohortM> whom,
-			List<CohortEncounter> encounters, List<Concept> questions,
-			List<Concept> answers, List<Location> locations, List<String> sort,
-			Integer mostRecentN, Integer obsGroupId, Date fromDate,
-			Date toDate, boolean includeVoidedObs) {
+	public List<CohortObs> getObservations(List<CohortM> whom, List<CohortEncounter> encounters, List<Concept> questions,
+	        List<Concept> answers, List<Location> locations, List<String> sort, Integer mostRecentN, Integer obsGroupId,
+	        Date fromDate, Date toDate, boolean includeVoidedObs) {
 		return null;
 	}
 	
@@ -395,7 +384,7 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 	public Long getCount(String name) {
 		return dao.getCount(name);
 	}
- 
+	
 	@Override
 	public CohortObs voidObs(CohortObs obs, String reason) {
 		return dao.saveObs(obs);
@@ -417,136 +406,136 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 	}
 	
 	@Override
-	public List<CohortMember> findCohortMembersByCohort (Integer cohortId) {
+	public List<CohortMember> findCohortMembersByCohort(Integer cohortId) {
 		return dao.findCohortMembersByCohortId(cohortId);
 	}
-
+	
 	/*@Override
 	public List<CohortM> getCohortsByLocationId(Integer id) {
 		return dao.getCohortsByLocationId(id);
 	}
-
+	
 	@Override
 	public List<CohortM> getCohortByCohortTypeId(Integer id) {
 		return dao.getCohortByCohortTypeId(id);
 	}
-
+	
 	@Override
 	public List<CohortM> getCohortByCohortProgramId(Integer id) {
 		return dao.getCohortByCohortProgramId(id);
 	}*/
-
+	
 	@Override
 	public List<CohortMember> getCohortMembersByCohortRoleId(Integer id) {
 		return dao.getCohortMembersByCohortRoleId(id);
 	}
-
+	
 	@Override
-	public CohortM getCohort(Integer locationId, Integer programId,Integer typeId) {
+	public CohortM getCohort(Integer locationId, Integer programId, Integer typeId) {
 		return dao.getCohort(locationId, programId, typeId);
 	}
-
+	
 	@Override
 	public List<CohortMember> getCohortMembersByCohortId(Integer id) {
 		return dao.getCohortMembersByCohortId(id);
 	}
-
+	
 	@Override
 	public List<CohortRole> getAllCohortRoles() {
 		return dao.getAllCohortRoles();
 	}
-
+	
 	@Override
 	public CohortRole getCohortRoleByName(String name) {
 		return dao.getCohortRoleByName(name);
 	}
-
+	
 	@Override
 	public List<CohortAttribute> findCohortAttributes(Integer cohortId, Integer attributeTypeId) {
 		return dao.findCohortAttributes(cohortId, attributeTypeId);
 	}
-
+	
 	@Override
 	public CohortType getCohortTypeByName(String name) {
 		return dao.getCohortTypeByName(name);
 	}
-
+	
 	@Override
 	public CohortM getCohortByName(String name) {
 		return dao.getCohortByName(name);
 	}
-
+	
 	@Override
 	public List<CohortVisit> getCohortVisitsByLocation(Integer id) {
 		return dao.getCohortVisitsByLocationId(id);
 	}
-
+	
 	@Override
 	public List<CohortMember> getAllHeadCohortMembers() {
 		return dao.getAllHeadCohortMembers();
 	}
-
+	
 	@Override
 	public List<CohortObs> getCohortObsByEncounterId(Integer id) {
 		return dao.getCohortObsByEncounterId(id);
 	}
-
+	
 	@Override
 	public List<CohortVisit> getCohortVisitsByDate(Date startDate, Date endDate) {
 		return dao.getCohortVisitsByDate(startDate, endDate);
 	}
-
+	
 	@Override
 	public CohortLeader getCohortLeaderByUuid(String uuid) {
 		return dao.getCohortLeaderByUuid(uuid);
 	}
-
+	
 	@Override
 	public CohortLeader getCohortLeaderById(Integer id) {
 		return dao.getCohortLeaderById(id);
 	}
-
+	
 	@Override
 	public List<CohortLeader> getCohortLeadersByCohortId(Integer id) {
 		return dao.getCohortLeadersByCohortId(id);
 	}
-
+	
 	@Override
 	public CohortLeader saveCohortLeader(CohortLeader cohortLeader) {
 		return dao.saveCohortLeader(cohortLeader);
 	}
-
+	
 	@Override
 	public CohortLeader voidCohortLeader(CohortLeader cohortLeader, String reason) {
 		return dao.saveCohortLeader(cohortLeader);
 	}
-
-
+	
 	@Override
 	public void purgeCohortLeader(CohortLeader cohortLeader) {
-			dao.purgeCohortLeader(cohortLeader);
+		dao.purgeCohortLeader(cohortLeader);
 	}
-
+	
 	@Override
 	public CohortMemberVisit getCohortMemberVisitByUuid(String uuid) {
 		return dao.getCohortMemberVisitByUuid(uuid);
 	}
+	
 	public List<CohortMember> findCohortMembersByPatient(int patientId) {
 		return dao.getCohortMembersByPatientId(patientId);
 	}
-
-
+	
 	@Override
 	public CohortMemberVisit saveCohortMemberVisit(CohortMemberVisit cohortMemberVisit) {
 		return dao.saveCohortMemberVisit(cohortMemberVisit);
 	}
-    @Override
-    public List<CohortAttribute> getCohortAttributesByAttributeType(Integer attributeTypeId) {
-        return dao.getCohortAttributesByAttributeType(attributeTypeId);
-    }
- 
-    @Override
-    public List<CohortM> getCohortsByLocationId(int locationId) {
-        return dao.getCohortsByLocationId(locationId);
-    }
+	
+	@Override
+	public List<CohortAttribute> getCohortAttributesByAttributeType(Integer attributeTypeId) {
+		return dao.getCohortAttributesByAttributeType(attributeTypeId);
+	}
+	
+	@Override
+	public List<CohortM> getCohortsByLocationId(int locationId) {
+		return dao.getCohortsByLocationId(locationId);
+	}
 }

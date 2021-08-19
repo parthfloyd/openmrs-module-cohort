@@ -1,3 +1,12 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public License,
+ * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+ * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+ *
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * graphic logo is a trademark of OpenMRS Inc.
+ */
 package org.openmrs.module.cohort.web.resource;
 
 import org.openmrs.api.context.Context;
@@ -16,14 +25,14 @@ import org.openmrs.module.webservices.rest.web.response.ResourceDoesNotSupportOp
 import org.openmrs.module.webservices.rest.web.response.ResponseException;
 
 @Resource(name = RestConstants.VERSION_1 + CohortRest.COHORT_NAMESPACE
-		+ "/cohortmembervisit", supportedClass = CohortMemberVisit.class, supportedOpenmrsVersions = { "1.8 - 2.*" })
+        + "/cohortmembervisit", supportedClass = CohortMemberVisit.class, supportedOpenmrsVersions = { "1.8 - 2.*" })
 public class CohortMemberVisitRequestResource extends DataDelegatingCrudResource<CohortMemberVisit> {
-
+	
 	@Override
 	public DelegatingResourceDescription getRepresentationDescription(Representation rep) {
-
+		
 		DelegatingResourceDescription description = null;
-
+		
 		if (Context.isAuthenticated()) {
 			description = new DelegatingResourceDescription();
 			if (rep instanceof DefaultRepresentation) {
@@ -40,33 +49,33 @@ public class CohortMemberVisitRequestResource extends DataDelegatingCrudResource
 		}
 		return description;
 	}
-
+	
 	@Override
 	public CohortMemberVisit getByUniqueId(String s) {
 		return Context.getService(CohortService.class).getCohortMemberVisitByUuid(s);
 	}
-
+	
 	@Override
 	protected void delete(CohortMemberVisit cohortMemberVisit, String s, RequestContext requestContext)
-			throws ResponseException {
-
+	        throws ResponseException {
+		
 	}
-
+	
 	@Override
 	public CohortMemberVisit newDelegate() {
 		return new CohortMemberVisit();
 	}
-
+	
 	@Override
 	public CohortMemberVisit save(CohortMemberVisit cohortMemberVisit) {
 		return Context.getService(CohortService.class).saveCohortMemberVisit(cohortMemberVisit);
 	}
-
+	
 	@Override
 	public void purge(CohortMemberVisit cohortMemberVisit, RequestContext requestContext) throws ResponseException {
-
+		
 	}
-
+	
 	@Override
 	public DelegatingResourceDescription getCreatableProperties() {
 		DelegatingResourceDescription description = new DelegatingResourceDescription();
@@ -74,12 +83,12 @@ public class CohortMemberVisitRequestResource extends DataDelegatingCrudResource
 		description.addProperty("cohortVisit");
 		return description;
 	}
-
+	
 	@Override
 	public DelegatingResourceDescription getUpdatableProperties() throws ResourceDoesNotSupportOperationException {
 		return getCreatableProperties();
 	}
-
+	
 	//    @Override
 	//    protected PageableResult doSearch(RequestContext context) {
 	//        String cohort = context.getParameter("cohort_visit");
@@ -96,5 +105,5 @@ public class CohortMemberVisitRequestResource extends DataDelegatingCrudResource
 	//        List<CohortMember> list = Context.getService(CohortService.class).findCohortMembersByCohort(cohorto.getCohortId());
 	//        return new NeedsPaging<CohortMember>(list, context);
 	//    }
-
+	
 }
