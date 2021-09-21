@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This Source Code Form is subject to the terms of the Mozilla Public License,
+    v. 2.0. If a copy of the MPL was not distributed with this file, You can
+    obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+    the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+
+    Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+    graphic logo is a trademark of OpenMRS Inc.
+-->
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <!-- Migrate cohort leaders to attributes -->
+    <changeSet id="create_leader_cohort_member_attribute_type_20210920" author="corneliouzbett">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from cohort_member_attribute_type where uuid =
+                'fac24350-c855-4c32-bdcf-36c4c439f538'
+            </sqlCheck>
+        </preConditions>
+        <comment>
+            Create Cohort Leader cohort member attribute type
+        </comment>
+        <sql>
+            insert into cohort_member_attribute_type (name, description, datatype,min_occurs, max_occurs, creator,
+            date_created,retired, uuid)
+            values ('Cohort Leader','Tags a leader of a particular cohort/group', 'java.lang.String', 0, 1, '1',now(), false,
+            'fac24350-c855-4c32-bdcf-36c4c439f538');
+        </sql>
+    </changeSet>
+    <changeSet id="copy_over_cohort_leaders_to_attributes_20210916" author="corneliouzbett">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="cohort_leader"/>
+            <and>
+                <sqlCheck expectedResult="1">select count(*) from cohort_member_attribute_type where uuid =
+                    'fac24350-c855-4c32-bdcf-36c4c439f538'
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <comment>
+            Migrate data from cohort leader table into cohort member attributes
+        </comment>
+        <sqlFile path="sql/copy-over-cohort-leaders.sql"/>
+    </changeSet>
+
+</databaseChangeLog>

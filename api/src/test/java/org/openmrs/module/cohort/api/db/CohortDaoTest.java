@@ -105,11 +105,10 @@ public class CohortDaoTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	public void shouldGetCohortWhereLocationProgramAndTypeAreNull() {
+	public void shouldGetCohortWhereLocationAndTypeAreNull() {
 		CohortM cohort = dao.getCohort(null, null, null);
 		assertThat(cohort, notNullValue());
 		assertThat(cohort.getLocation(), is(nullValue()));
-		assertThat(cohort.getCohortProgram(), is(nullValue()));
 		assertThat(cohort.getCohortType(), is(nullValue()));
 	}
 }

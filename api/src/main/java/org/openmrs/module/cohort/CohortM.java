@@ -56,21 +56,11 @@ public class CohortM extends BaseOpenmrsData {
 	@JoinColumn(name = "cohort_type_id")
 	private CohortType cohortType;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "cohort_program_id")
-	private CohortProgram cohortProgram;
-	
 	@OneToMany(mappedBy = "cohort", cascade = CascadeType.ALL)
 	private List<CohortAttribute> attributes = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "cohort", cascade = CascadeType.ALL)
-	private List<CohortLeader> cohortLeaders = new ArrayList<>();
-	
-	@OneToMany(mappedBy = "cohort", cascade = CascadeType.ALL)
 	private List<CohortMember> cohortMembers = new ArrayList<>();
-	
-	@OneToMany(mappedBy = "cohort", cascade = CascadeType.ALL)
-	private List<CohortVisit> cohortVisits = new ArrayList<>();
 	
 	@Column(name = "is_group_cohort", nullable = false)
 	private Boolean groupCohort;
@@ -131,14 +121,6 @@ public class CohortM extends BaseOpenmrsData {
 		this.cohortType = cohortType;
 	}
 	
-	public CohortProgram getCohortProgram() {
-		return cohortProgram;
-	}
-	
-	public void setCohortProgram(CohortProgram cohortProgram) {
-		this.cohortProgram = cohortProgram;
-	}
-	
 	public void setCohortMembers(List<CohortMember> cohortMembers) {
 		this.cohortMembers = cohortMembers;
 	}
@@ -148,21 +130,6 @@ public class CohortM extends BaseOpenmrsData {
 			cohortMembers = new ArrayList<>();
 		}
 		return cohortMembers;
-	}
-	
-	public List<CohortVisit> getCohortVisits() {
-		if (cohortVisits == null) {
-			cohortVisits = new ArrayList<>();
-		}
-		return cohortVisits;
-	}
-	
-	public void setCohortVisits(List<CohortVisit> cohortVisits) {
-		this.cohortVisits = cohortVisits;
-	}
-	
-	public void setCohortLeaders(List<CohortLeader> leaders) {
-		this.cohortLeaders = leaders;
 	}
 	
 	public List<CohortMember> getActiveCohortMembers() {
@@ -175,47 +142,11 @@ public class CohortM extends BaseOpenmrsData {
 		return members;
 	}
 	
-	public List<CohortLeader> getCohortLeaders() {
-		if (cohortLeaders == null) {
-			cohortLeaders = new ArrayList<>();
-		}
-		return cohortLeaders;
-	}
-	
-	public List<CohortLeader> getActiveCohortLeaders() {
-		List<CohortLeader> leaders = new ArrayList<>();
-		for (CohortLeader leader : getCohortLeaders()) {
-			if (!leader.getVoided()) {
-				leaders.add(leader);
-			}
-		}
-		return leaders;
-	}
-	
 	public List<CohortAttribute> getAttributes() {
 		if (attributes == null) {
 			attributes = new ArrayList<>();
 		}
 		return attributes;
-	}
-	
-	public void addCohortLeader(CohortLeader leader) {
-		leader.setCohort(this);
-		
-		for (CohortLeader currentLeader : getActiveCohortLeaders()) {
-			if (currentLeader.equals(leader)) {
-				// if we have the same CohortLeader, don't add the new leader
-				return;
-			}
-		}
-		CohortLeader currentLeader = getActiveCohortLeaders().get(0);
-		// there can only be one active leader at a time
-		currentLeader.setVoided(true);
-		currentLeader.setEndDate(new Date());
-		cohortLeaders.remove(currentLeader);
-		if (!OpenmrsUtil.collectionContains(cohortLeaders, leader)) {
-			cohortLeaders.add(leader);
-		}
 	}
 	
 	public CohortMember getMember(String uuid) {
@@ -321,17 +252,17 @@ public class CohortM extends BaseOpenmrsData {
 	 * {@link CohortAttributeType}, the given {@link CohortAttributeType} is null, or this cohort has no
 	 * attributes.
 	 *
-	 * @param pat the CohortAttributeType to look for (can be a stub, see
+	 * @param cohortAttributeType the CohortAttributeType to look for (can be a stub, see
 	 *            {@link CohortAttributeType#equals(Object)} for how its compared)
 	 * @return CohortAttribute that matches the given type
 	 * @should not fail when attribute type is null
 	 * @should not return voided attribute
 	 * @should return null when existing CohortAttributeType is voided
 	 */
-	public CohortAttribute getAttribute(CohortAttributeType pat) {
-		if (pat != null) {
+	public CohortAttribute getAttribute(CohortAttributeType cohortAttributeType) {
+		if (cohortAttributeType != null) {
 			for (CohortAttribute attribute : getAttributes()) {
-				if (pat.equals(attribute.getCohortAttributeType()) && !attribute.getVoided()) {
+				if (cohortAttributeType.equals(attribute.getCohortAttributeType()) && !attribute.getVoided()) {
 					return attribute;
 				}
 			}
@@ -395,16 +326,16 @@ public class CohortM extends BaseOpenmrsData {
 	 * @should return all CohortAttributes with matching attributeType names
 	 */
 	public List<CohortAttribute> getAttributes(String attributeName) {
-		List<CohortAttribute> ret = new ArrayList<>();
+		List<CohortAttribute> cohortAttributes = new ArrayList<>();
 		
 		for (CohortAttribute attribute : getActiveAttributes()) {
 			CohortAttributeType type = attribute.getCohortAttributeType();
 			if (type != null && attributeName.equals(type.getName())) {
-				ret.add(attribute);
+				cohortAttributes.add(attribute);
 			}
 		}
 		
-		return ret;
+		return cohortAttributes;
 	}
 	
 	/**
@@ -431,7 +362,7 @@ public class CohortM extends BaseOpenmrsData {
 	 * Convenience method to get all of this cohort's attributes that have a CohortAttributeType equal
 	 * to <code>CohortAttributeType</code>.
 	 *
-	 * @param CohortAttributeType
+	 * @param CohortAttributeType Cohort attribute type
 	 */
 	public List<CohortAttribute> getAttributes(CohortAttributeType CohortAttributeType) {
 		List<CohortAttribute> ret = new ArrayList<>();
@@ -484,8 +415,8 @@ public class CohortM extends BaseOpenmrsData {
 	}
 	
 	@Override
-	public void setId(Integer id) {
-		setCohortId(id);
+	public void setId(Integer cohortId) {
+		setCohortId(cohortId);
 	}
 	
 	@Override
