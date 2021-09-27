@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.Location;
+import org.openmrs.api.APIAuthenticationException;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.cohort.CohortAttribute;
@@ -46,66 +47,50 @@ public class CohortRequestResource extends DataDelegatingCrudResource<CohortM> {
 	@Override
 	public DelegatingResourceDescription getRepresentationDescription(Representation rep) {
 		if (Context.isAuthenticated()) {
-			
-			DelegatingResourceDescription description = null;
-			
 			if (rep instanceof DefaultRepresentation) {
-				description = new DelegatingResourceDescription();
-				description.addProperty("name");
-				description.addProperty("description");
-				description.addProperty("location");
-				description.addProperty("startDate");
-				description.addProperty("endDate");
-				description.addProperty("cohortType");
-				description.addProperty("attributes");
-				description.addProperty("groupCohort");
-				description.addProperty("uuid");
-				description.addProperty("voided");
-				description.addProperty("voidReason");
-				description.addProperty("display");
-				description.addSelfLink();
-				return description;
+				final DelegatingResourceDescription defaultDescription = getSharedDelegatingResourceDescription();
+				defaultDescription.addProperty("uuid");
+				defaultDescription.addProperty("location", Representation.REF);
+				defaultDescription.addProperty("cohortType", Representation.REF);
+				defaultDescription.addProperty("voided");
+				defaultDescription.addProperty("voidReason");
+				defaultDescription.addProperty("display");
+				defaultDescription.addSelfLink();
+				defaultDescription.addLink("full", ".?v=" + RestConstants.REPRESENTATION_FULL);
+				return defaultDescription;
 			} else if (rep instanceof FullRepresentation) {
-				
-				description = new DelegatingResourceDescription();
-				
-				description.addProperty("name");
-				description.addProperty("description");
-				description.addProperty("location");
-				description.addProperty("startDate");
-				description.addProperty("endDate");
-				description.addProperty("cohortType");
-				description.addProperty("attributes");
-				description.addProperty("groupCohort");
+				final DelegatingResourceDescription description = getSharedDelegatingResourceDescription();
+				description.addProperty("location", Representation.FULL);
 				description.addProperty("cohortMembers", Representation.FULL);
+				description.addProperty("cohortType", Representation.FULL);
 				description.addProperty("voided");
 				description.addProperty("voidReason");
 				description.addProperty("uuid");
 				description.addProperty("auditInfo");
 				description.addProperty("display");
-				
 				description.addSelfLink();
-				
 				return description;
 			}
-			
-			return description;
+			return null;
 		}
-		return null;
+		throw new APIAuthenticationException("Unauthorized");
+	}
+	
+	private DelegatingResourceDescription getSharedDelegatingResourceDescription() {
+		DelegatingResourceDescription description = new DelegatingResourceDescription();
+		description.addProperty("name");
+		description.addProperty("description");
+		description.addProperty("startDate");
+		description.addProperty("endDate");
+		description.addProperty("attributes");
+		description.addProperty("groupCohort");
+		return description;
 	}
 	
 	@Override
 	public DelegatingResourceDescription getCreatableProperties() {
 		DelegatingResourceDescription description = new DelegatingResourceDescription();
-		
-		description.addRequiredProperty("name");
-		description.addProperty("description");
-		description.addRequiredProperty("location");
-		description.addRequiredProperty("startDate");
-		description.addProperty("endDate");
-		description.addRequiredProperty("cohortType");
-		description.addProperty("attributes");
-		description.addProperty("cohortMembers");
+		addSharedDelegatingResourceProperties(description);
 		description.addProperty("voided");
 		description.addProperty("groupCohort");
 		return description;
@@ -114,7 +99,14 @@ public class CohortRequestResource extends DataDelegatingCrudResource<CohortM> {
 	@Override
 	public DelegatingResourceDescription getUpdatableProperties() throws ResourceDoesNotSupportOperationException {
 		DelegatingResourceDescription description = new DelegatingResourceDescription();
-		
+		addSharedDelegatingResourceProperties(description);
+		description.addProperty("groupCohort");
+		description.addProperty("voided");
+		description.addProperty("voidReason");
+		return description;
+	}
+	
+	private void addSharedDelegatingResourceProperties(DelegatingResourceDescription description) {
 		description.addRequiredProperty("name");
 		description.addProperty("description");
 		description.addRequiredProperty("location");
@@ -123,10 +115,6 @@ public class CohortRequestResource extends DataDelegatingCrudResource<CohortM> {
 		description.addRequiredProperty("cohortType");
 		description.addProperty("attributes");
 		description.addProperty("cohortMembers");
-		description.addProperty("groupCohort");
-		description.addProperty("voided");
-		description.addProperty("voidReason");
-		return description;
 	}
 	
 	@Override
@@ -160,35 +148,28 @@ public class CohortRequestResource extends DataDelegatingCrudResource<CohortM> {
 	}
 	
 	@Override
-	public CohortM getByUniqueId(String id) {
-		CohortM obj = Context.getService(CohortService.class).getCohortByUuid(id);
-		
-		if (obj == null) {
-			// TODO add to API
-			// obj = Context.getService(CohortService.class).getCohortByName(id);
-		}
-		
-		return obj;
+	public CohortM getByUniqueId(String uuid) {
+		return Context.getService(CohortService.class).getCohortByUuid(uuid);
 	}
 	
 	@Override
 	protected PageableResult doGetAll(RequestContext context) throws ResponseException {
 		List<CohortM> cohort = Context.getService(CohortService.class).getAllCohorts();
-		return new NeedsPaging<CohortM>(cohort, context);
+		return new NeedsPaging<>(cohort, context);
 	}
 	
 	@Override
 	protected PageableResult doSearch(RequestContext context) {
-		String attributesStr = context.getParameter("attributes");
+		String attributeQuery = context.getParameter("attributes");
 		String cohortType = context.getParameter("cohortType");
 		String location = context.getParameter("location");
 		
 		Map<String, String> attributes = null;
 		CohortType type = null;
 		
-		if (StringUtils.isNotBlank(attributesStr)) {
+		if (StringUtils.isNotBlank(attributeQuery)) {
 			try {
-				attributes = new ObjectMapper().readValue("{" + attributesStr + "}",
+				attributes = new ObjectMapper().readValue("{" + attributeQuery + "}",
 				    new TypeReference<Map<String, String>>() {
 				    
 				    });
@@ -215,35 +196,35 @@ public class CohortRequestResource extends DataDelegatingCrudResource<CohortM> {
 			} else {
 				int locationId = cohortLocation.getLocationId();
 				List<CohortM> cohorts = Context.getService(CohortService.class).getCohortsByLocationId(locationId);
-				return new NeedsPaging<CohortM>(cohorts, context);
+				return new NeedsPaging<>(cohorts, context);
 			}
 		}
 		
 		List<CohortM> cohort = Context.getService(CohortService.class).findCohortsMatching(context.getParameter("q"),
 		    attributes, type);
-		return new NeedsPaging<CohortM>(cohort, context);
+		return new NeedsPaging<>(cohort, context);
 		
 	}
 	
 	/**
 	 * Sets attributes on the given cohort.
 	 *
-	 * @param cohort
-	 * @param attrs
+	 * @param cohort The current cohort
+	 * @param attributes Cohort attributes to be set
 	 */
 	@PropertySetter("attributes")
-	public static void setAttributes(CohortM cohort, List<CohortAttribute> attrs) {
-		for (CohortAttribute attr : attrs) {
+	public static void setAttributes(CohortM cohort, List<CohortAttribute> attributes) {
+		for (CohortAttribute attribute : attributes) {
 			CohortAttribute existingAttribute = cohort.getAttribute(Context.getService(CohortService.class)
-			        .getCohortAttributeTypeByUuid(attr.getCohortAttributeType().getUuid()));
+			        .getCohortAttributeTypeByUuid(attribute.getCohortAttributeType().getUuid()));
 			if (existingAttribute != null) {
-				if (attr.getValue() == null) {
+				if (attribute.getValue() == null) {
 					cohort.removeAttribute(existingAttribute);
 				} else {
-					existingAttribute.setValue(attr.getValue());
+					existingAttribute.setValue(attribute.getValue());
 				}
 			} else {
-				cohort.addAttribute(attr);
+				cohort.addAttribute(attribute);
 			}
 		}
 	}
