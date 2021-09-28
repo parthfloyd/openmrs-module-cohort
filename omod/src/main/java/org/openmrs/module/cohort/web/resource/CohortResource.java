@@ -24,7 +24,6 @@ import org.openmrs.module.cohort.CohortM;
 import org.openmrs.module.cohort.CohortMember;
 import org.openmrs.module.cohort.CohortType;
 import org.openmrs.module.cohort.api.CohortService;
-import org.openmrs.module.cohort.rest.v1_0.resource.CohortRest;
 import org.openmrs.module.webservices.rest.web.RequestContext;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.annotation.PropertyGetter;
@@ -42,7 +41,7 @@ import org.openmrs.module.webservices.rest.web.response.ResponseException;
 
 @Resource(name = RestConstants.VERSION_1 + CohortRest.COHORT_NAMESPACE
         + "/cohort", supportedClass = CohortM.class, supportedOpenmrsVersions = { "1.8 - 2.*" })
-public class CohortRequestResource extends DataDelegatingCrudResource<CohortM> {
+public class CohortResource extends DataDelegatingCrudResource<CohortM> {
 	
 	@Override
 	public DelegatingResourceDescription getRepresentationDescription(Representation rep) {

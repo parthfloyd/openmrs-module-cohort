@@ -12,7 +12,6 @@ package org.openmrs.module.cohort.web.resource;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.cohort.CohortMemberAttributeType;
 import org.openmrs.module.cohort.api.CohortMemberService;
-import org.openmrs.module.cohort.rest.v1_0.resource.CohortRest;
 import org.openmrs.module.webservices.rest.web.RequestContext;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.annotation.Resource;

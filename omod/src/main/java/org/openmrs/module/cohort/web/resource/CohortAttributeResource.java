@@ -16,7 +16,6 @@ import org.openmrs.module.cohort.CohortAttribute;
 import org.openmrs.module.cohort.CohortAttributeType;
 import org.openmrs.module.cohort.CohortM;
 import org.openmrs.module.cohort.api.CohortService;
-import org.openmrs.module.cohort.rest.v1_0.resource.CohortRest;
 import org.openmrs.module.webservices.rest.web.RequestContext;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.annotation.Resource;
@@ -32,31 +31,32 @@ import org.openmrs.module.webservices.rest.web.response.ResponseException;
 
 @Resource(name = RestConstants.VERSION_1 + CohortRest.COHORT_NAMESPACE
         + "/cohortattribute", supportedClass = CohortAttribute.class, supportedOpenmrsVersions = { "1.8 - 2.*" })
-public class CohortAttributesRequestResource extends DataDelegatingCrudResource<CohortAttribute> {
+public class CohortAttributeResource extends DataDelegatingCrudResource<CohortAttribute> {
 	
 	@Override
 	public DelegatingResourceDescription getRepresentationDescription(Representation rep) {
-		
-		DelegatingResourceDescription description = null;
-		
 		if (Context.isAuthenticated()) {
-			description = new DelegatingResourceDescription();
 			if (rep instanceof DefaultRepresentation) {
+				final DelegatingResourceDescription description = new DelegatingResourceDescription();
 				description.addProperty("cohort", Representation.REF);
 				description.addProperty("value");
 				description.addProperty("cohortAttributeType");
 				description.addProperty("uuid");
 				description.addSelfLink();
+				description.addLink("full", ".?v=" + RestConstants.REPRESENTATION_FULL);
+				return description;
 			} else if (rep instanceof FullRepresentation) {
+				final DelegatingResourceDescription description = new DelegatingResourceDescription();
 				description.addProperty("cohort", Representation.REF);
 				description.addProperty("value");
 				description.addProperty("cohortAttributeType");
 				description.addProperty("uuid");
 				description.addProperty("auditInfo");
 				description.addSelfLink();
+				return description;
 			}
 		}
-		return description;
+		return null;
 	}
 	
 	@Override
@@ -105,12 +105,12 @@ public class CohortAttributesRequestResource extends DataDelegatingCrudResource<
 		String cohort = context.getParameter("cohort");
 		String attr = context.getParameter("attributeType");
 		
-		CohortM cohorto = Context.getService(CohortService.class).getCohortByName(cohort);
-		if (cohorto == null) {
-			cohorto = Context.getService(CohortService.class).getCohortByUuid(cohort);
+		CohortM cohortByName = Context.getService(CohortService.class).getCohortByName(cohort);
+		if (cohortByName == null) {
+			cohortByName = Context.getService(CohortService.class).getCohortByUuid(cohort);
 		}
 		
-		if (cohorto == null) {
+		if (cohortByName == null) {
 			throw new IllegalArgumentException("No valid value specified for param cohort");
 		}
 		
@@ -129,9 +129,9 @@ public class CohortAttributesRequestResource extends DataDelegatingCrudResource<
 			}
 		}
 		
-		if (cohorto != null) {
-			List<CohortAttribute> list = Context.getService(CohortService.class).findCohortAttributes(cohorto.getCohortId(),
-			    attributeId);
+		if (cohortByName != null) {
+			List<CohortAttribute> list = Context.getService(CohortService.class)
+			        .findCohortAttributes(cohortByName.getCohortId(), attributeId);
 			return new NeedsPaging<>(list, context);
 		} else {
 			List<CohortAttribute> list = Context.getService(CohortService.class)
