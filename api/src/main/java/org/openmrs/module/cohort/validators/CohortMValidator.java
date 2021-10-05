@@ -19,13 +19,13 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 @Component
-@Qualifier("cohort.cohortValidator")
-public class CohortValidator implements Validator {
+@Qualifier("cohort.cohortMValidator")
+public class CohortMValidator implements Validator {
 	
 	private final CohortService cohortService;
 	
 	@Autowired
-	public CohortValidator(CohortService cohortService) {
+	public CohortMValidator(CohortService cohortService) {
 		this.cohortService = cohortService;
 	}
 	
