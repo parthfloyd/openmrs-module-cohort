@@ -7,7 +7,7 @@
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
-package org.openmrs.module.cohort.validator;
+package org.openmrs.module.cohort.validators;
 
 import org.openmrs.module.cohort.CohortType;
 import org.openmrs.module.cohort.api.CohortTypeService;
@@ -19,13 +19,13 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 @Component
-@Qualifier("addCohortTypeValidator")
-public class AddCohortTypeValidator implements Validator {
+@Qualifier("cohort.cohortTypeValidator")
+public class CohortTypeValidator implements Validator {
 	
 	private final CohortTypeService cohortTypeService;
 	
 	@Autowired
-	public AddCohortTypeValidator(CohortTypeService cohortTypeService) {
+	public CohortTypeValidator(CohortTypeService cohortTypeService) {
 		this.cohortTypeService = cohortTypeService;
 	}
 	
@@ -43,7 +43,7 @@ public class AddCohortTypeValidator implements Validator {
 		CohortType type = cohortTypeService.getByName(currentType.getName());
 		
 		if (type != null) {
-			errors.rejectValue("name", "a cohort type with the same name already exists");
+			errors.rejectValue("name", "A cohort type with the same name already exists");
 		}
 	}
 }

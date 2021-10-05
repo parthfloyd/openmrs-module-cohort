@@ -7,9 +7,7 @@
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
-package org.openmrs.module.cohort.validator;
-
-import java.util.Collection;
+package org.openmrs.module.cohort.validators;
 
 import org.openmrs.module.cohort.CohortM;
 import org.openmrs.module.cohort.api.CohortService;
@@ -21,13 +19,13 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 @Component
-@Qualifier("addCohortValidator")
-public class AddCohortValidator implements Validator {
+@Qualifier("cohort.cohortValidator")
+public class CohortValidator implements Validator {
 	
 	private final CohortService cohortService;
 	
 	@Autowired
-	public AddCohortValidator(CohortService cohortService) {
+	public CohortValidator(CohortService cohortService) {
 		this.cohortService = cohortService;
 	}
 	
@@ -44,16 +42,16 @@ public class AddCohortValidator implements Validator {
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "endDate", "Cohort End Date Required");
 		
 		CohortM cohort = (CohortM) command;
+		
+		//EndDate should less than startDate
 		if (cohort.getStartDate().compareTo(cohort.getEndDate()) > 0) {
 			errors.rejectValue("startDate", "Start date should be less than End date");
 		}
 		
-		// TODO change it to find by name and then reject
-		Collection<CohortM> allCohorts = cohortService.findAll();
-		for (CohortM checkCohort : allCohorts) {
-			if (checkCohort.getName().equals(cohort.getName())) {
-				errors.rejectValue("name", "A cohort with this name already exists");
-			}
+		//Cohort should have a unique name
+		CohortM cohortByName = cohortService.findByName(cohort.getName());
+		if (cohortByName != null) {
+			errors.rejectValue("name", "A cohort with this name already exists");
 		}
 	}
 }

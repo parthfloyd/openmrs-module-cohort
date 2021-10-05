@@ -7,9 +7,11 @@
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
-package org.openmrs.module.cohort.validator;
+package org.openmrs.module.cohort.validators;
 
 import org.openmrs.module.cohort.CohortAttributeType;
+import org.openmrs.module.cohort.api.CohortService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -17,8 +19,15 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 @Component
-@Qualifier("addCohortAttributeTypeValidator")
-public class AddCohortAttributeTypeValidator implements Validator {
+@Qualifier("cohort.cohortAttributeTypeValidator")
+public class CohortAttributeTypeValidator implements Validator {
+	
+	private final CohortService cohortService;
+	
+	@Autowired
+	public CohortAttributeTypeValidator(CohortService cohortService) {
+		this.cohortService = cohortService;
+	}
 	
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -31,6 +40,11 @@ public class AddCohortAttributeTypeValidator implements Validator {
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "description", "required");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "format", "required");
 		
-		//TODO reject if duplicate is created
+		CohortAttributeType cohortAttributeType = (CohortAttributeType) command;
+		CohortAttributeType attributeType = cohortService.getAttributeTypeByName(cohortAttributeType.getName());
+		
+		if (attributeType != null) {
+			errors.rejectValue("name", " A cohort attribute type with the same name already exists");
+		}
 	}
 }
