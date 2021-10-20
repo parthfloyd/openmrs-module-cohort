@@ -66,12 +66,12 @@ public class CohortMemberAttributeTypeResourceTest extends BaseCohortResourceTes
 	
 	@Test
 	public void shouldReturnDefaultRepresentation() {
-		verifyDefaultRepresentation("name", "description", "format", "uuid");
+		verifyDefaultRepresentation("name", "description", "uuid");
 	}
 	
 	@Test
 	public void shouldReturnFullRepresentation() {
-		verifyFullRepresentation("name", "description", "format", "uuid", "auditInfo");
+		verifyFullRepresentation("name", "description", "uuid", "auditInfo");
 	}
 	
 	@Test
@@ -122,7 +122,7 @@ public class CohortMemberAttributeTypeResourceTest extends BaseCohortResourceTes
 	
 	@Test
 	public void verifyResourceVersion() {
-		assertThat(getResource().getResourceVersion(), is("1.8"));
+		assertThat(getResource().getResourceVersion(), is("1.9"));
 	}
 	
 }

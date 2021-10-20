@@ -32,9 +32,9 @@ import org.openmrs.module.webservices.rest.web.v1_0.resource.openmrs1_9.BaseAttr
 @SubResource(parent = CohortResource.class, path = "attribute", supportedClass = CohortAttribute.class, supportedOpenmrsVersions = {
         "1.8 - 2.*" })
 public class CohortAttributeResource extends BaseAttributeCrudResource1_9<CohortAttribute, CohortM, CohortResource> {
-
+	
 	private final CohortService cohortService;
-
+	
 	public CohortAttributeResource() {
 		this.cohortService = Context.getRegisteredComponent("cohort.cohortService", CohortService.class);
 	}
@@ -107,7 +107,7 @@ public class CohortAttributeResource extends BaseAttributeCrudResource1_9<Cohort
 	public CohortAttribute getByUniqueId(@NotNull String uuid) {
 		return cohortService.getAttributeByUuid(uuid);
 	}
-
+	
 	@Override
 	public String getUri(Object instance) {
 		log.debug("URI: {}", super.getUri(instance));
