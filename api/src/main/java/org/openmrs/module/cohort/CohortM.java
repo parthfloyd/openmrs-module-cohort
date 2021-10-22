@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import lombok.SneakyThrows;
@@ -243,14 +242,27 @@ public class CohortM extends BaseCustomizableData<CohortAttribute> implements Au
 			throw new APIException("CohortM.failed.load.definitionHandlerClass",
 			        new Object[] { getDefinitionHandlerClassname() }, e);
 		}
+
+		if (definitionHandlerClass == null) {
+			log.error("Failed to load class {}", getDefinitionHandlerClassname());
+			throw new APIException("CohortM.failed.load.definitionHandlerClass",
+					new Object[] { getDefinitionHandlerClassname() });
+		}
+
 		List<? extends CohortDefinitionHandler> handlers = (List<? extends CohortDefinitionHandler>) Context
 		        .getRegisteredComponents(definitionHandlerClass);
+
 		if (!handlers.isEmpty()) {
+			if (log.isWarnEnabled()) {
+				if (handlers.size() > 1) {
+					log.warn("Found {} possible handlers for {}; using the first result", handlers.size(),
+							getDefinitionHandlerClassname());
+				}
+			}
 			return handlers.get(0);
 		}
-		
-		return (CohortDefinitionHandler) Objects.requireNonNull(definitionHandlerClass).getDeclaredConstructor()
-		        .newInstance();
+
+		return (CohortDefinitionHandler) definitionHandlerClass.getDeclaredConstructor().newInstance();
 	}
 	
 	public int size() {
