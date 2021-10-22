@@ -9,8 +9,6 @@
  */
 package org.openmrs.module.cohort;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -32,7 +30,6 @@ import java.util.Set;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.BatchSize;
 import org.openmrs.Auditable;
 import org.openmrs.BaseCustomizableData;
 import org.openmrs.Location;
@@ -73,12 +70,6 @@ public class CohortM extends BaseCustomizableData<CohortAttribute> implements Au
 	
 	@OneToMany(mappedBy = "cohort", cascade = CascadeType.ALL)
 	private List<CohortMember> cohortMembers = new ArrayList<>();
-	
-	@Access(AccessType.PROPERTY)
-	@OneToMany(mappedBy = "cohort", cascade = CascadeType.ALL)
-	@BatchSize(size = 100)
-	private Set<CohortAttribute> attributes = new LinkedHashSet<>();
-	
 	@Column(name = "is_group_cohort", nullable = false)
 	private Boolean groupCohort;
 	
