@@ -206,7 +206,7 @@ public class CohortResource extends DataDelegatingCrudResource<CohortM> {
 		return new NeedsPaging<>(cohort, context);
 		
 	}
-
+	
 	/**
 	 * Gets the active attributes of the cohort
 	 */
@@ -236,10 +236,5 @@ public class CohortResource extends DataDelegatingCrudResource<CohortM> {
 	@PropertyGetter("size")
 	public int size(CohortM cohort) {
 		return cohort.size();
-	}
-	
-	@PropertyGetter("attributes")
-	public Collection<CohortAttribute> getCohortAttributes(CohortM cohort) {
-		return cohort.getActiveAttributes();
 	}
 }
