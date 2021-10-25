@@ -33,7 +33,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 @RunWith(PowerMockRunner.class)
-public class CohortMemberAttributeTypeResourceTest extends BaseCohortResourceTest<CohortAttributeType, CohortAttributeTypeResource> {
+public class CohortAttributeTypeResourceTest extends BaseCohortResourceTest<CohortAttributeType, CohortAttributeTypeResource> {
 	
 	private static final String COHORT_ATTRIBUTE_TYPE_UUID = "8tae735a-fca0-11e5-9e59-08002719a786";
 	
