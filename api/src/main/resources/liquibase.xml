@@ -178,7 +178,7 @@
             </column>
             <column name="attribute_type_id" type="int(11)">
                 <constraints nullable="false" foreignKeyName="cohort_attribute_type_fk"
-                             references="cohort_attribute_type(attribute_type_id)"/>
+                             references="cohort_attribute_type(cohort_attribute_type_id)"/>
             </column>
 
             <column name="date_created" type="datetime">
