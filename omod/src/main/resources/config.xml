@@ -18,7 +18,7 @@
     <name>${project.parent.name}</name>
     <version>${project.parent.version}</version>
     <package>${project.parent.groupId}.${project.parent.artifactId}</package>
-    <author>Sharon</author>
+    <author>OpenMRS Platform Team</author>
     <description>
         ${project.parent.description}
     </description>
@@ -26,7 +26,6 @@
     </updateURL>
     <require_version>2.0.5 - 2.*</require_version>
     <!-- / Module Properties -->
-
 
     <!-- Module Activator -->
     <activator>${project.parent.groupId}.${project.parent.artifactId}.CohortModuleActivator
