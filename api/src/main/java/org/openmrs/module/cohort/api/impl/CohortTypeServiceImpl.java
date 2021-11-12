@@ -6,26 +6,26 @@ import java.util.Collection;
 
 import lombok.AccessLevel;
 import lombok.Setter;
+import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.cohort.CohortType;
 import org.openmrs.module.cohort.api.CohortTypeService;
-import org.openmrs.module.cohort.api.dao.IGenericDao;
-import org.openmrs.module.cohort.api.dao.PropValue;
+import org.openmrs.module.cohort.api.dao.GenericDao;
+import org.openmrs.module.cohort.api.dao.search.PropValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @Setter(AccessLevel.PACKAGE)
-@Component(value = "cohort.cohortTypeService")
+@Component(value = "cohort.cohortTypeServiceImpl")
 public class CohortTypeServiceImpl extends BaseOpenmrsService implements CohortTypeService {
 	
-	private final IGenericDao<CohortType> dao;
+	private final GenericDao<CohortType> dao;
 	
 	@Autowired
-	public CohortTypeServiceImpl(IGenericDao<CohortType> dao) {
+	public CohortTypeServiceImpl(GenericDao<CohortType> dao) {
 		this.dao = dao;
-		this.dao.setClazz(CohortType.class);
 	}
 	
 	@Override
@@ -44,23 +44,21 @@ public class CohortTypeServiceImpl extends BaseOpenmrsService implements CohortT
 	}
 	
 	@Override
-	public CohortType createOrUpdate(CohortType cohortType) {
+	public CohortType saveCohortType(CohortType cohortType) {
 		return dao.createOrUpdate(cohortType);
 	}
 	
 	@Override
-	public CohortType delete(@NotNull String uuid, String voidedReason) {
-		CohortType cohortTypeToBeVoided = this.getByUuid(uuid);
-		if (cohortTypeToBeVoided != null) {
-			cohortTypeToBeVoided.setVoided(true);
-			cohortTypeToBeVoided.setVoidReason(voidedReason);
-			return createOrUpdate(cohortTypeToBeVoided);
+	public void voidCohortType(@NotNull CohortType cohortType, String voidedReason) {
+		if (cohortType == null) {
+			return;
 		}
-		return null;
+		
+		Context.getService(CohortTypeService.class).saveCohortType(cohortType);
 	}
 	
 	@Override
-	public void purge(CohortType cohortType) {
+	public void purgeCohortType(CohortType cohortType) {
 		dao.delete(cohortType);
 	}
 }
