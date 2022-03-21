@@ -23,13 +23,10 @@ import org.openmrs.module.cohort.CohortMemberAttributeType;
 import org.openmrs.module.cohort.api.CohortMemberService;
 import org.openmrs.module.cohort.api.dao.GenericDao;
 import org.openmrs.module.cohort.api.dao.search.PropValue;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @Setter(AccessLevel.PACKAGE)
-@Component(value = "cohort.cohortMemberServiceImpl")
 public class CohortMemberServiceImpl extends BaseOpenmrsService implements CohortMemberService {
 	
 	private final GenericDao<CohortMember> cohortMemberDao;
@@ -38,7 +35,6 @@ public class CohortMemberServiceImpl extends BaseOpenmrsService implements Cohor
 	
 	private final GenericDao<CohortMemberAttribute> cohortMemberAttributeDao;
 	
-	@Autowired
 	public CohortMemberServiceImpl(GenericDao<CohortMember> cohortMemberDao,
 	    GenericDao<CohortMemberAttributeType> cohortMemberAttributeTypeDao,
 	    GenericDao<CohortMemberAttribute> cohortMemberAttributeDao) {

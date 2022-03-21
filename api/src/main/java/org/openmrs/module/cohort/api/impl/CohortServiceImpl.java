@@ -27,14 +27,11 @@ import org.openmrs.module.cohort.CohortType;
 import org.openmrs.module.cohort.api.CohortService;
 import org.openmrs.module.cohort.api.dao.GenericDao;
 import org.openmrs.module.cohort.api.dao.search.PropValue;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Transactional
 @Setter(AccessLevel.PACKAGE)
-@Component(value = "cohort.cohortServiceImpl")
 public class CohortServiceImpl extends BaseOpenmrsService implements CohortService {
 	
 	private final GenericDao<CohortM> cohortDao;
@@ -43,7 +40,6 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 	
 	private final GenericDao<CohortAttributeType> cohortAttributeTypeDao;
 	
-	@Autowired
 	public CohortServiceImpl(GenericDao<CohortM> cohortDao, GenericDao<CohortAttribute> cohortAttributeDao,
 	    GenericDao<CohortAttributeType> cohortAttributeTypeDao) {
 		this.cohortDao = cohortDao;

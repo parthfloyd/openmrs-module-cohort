@@ -21,7 +21,13 @@
 
     <bean id="cohort.cohortService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager" ref="transactionManager"/>
-        <property name="target" ref="cohort.cohortServiceImpl"/>
+        <property name="target">
+			<bean class="org.openmrs.module.cohort.api.impl.CohortServiceImpl">
+				<constructor-arg ref="cohortDao" />
+				<constructor-arg ref="cohortAttributeDao" />
+				<constructor-arg ref="cohortAttributeTypeDao" />
+			</bean>
+		</property>
         <property name="preInterceptors" ref="serviceInterceptors"/>
         <property name="transactionAttributeSource" ref="transactionAttributeSource"/>
     </bean>
@@ -36,7 +42,13 @@
 
     <bean id="cohort.cohortMemberService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager" ref="transactionManager"/>
-        <property name="target" ref="cohort.cohortMemberServiceImpl"/>
+        <property name="target">
+			<bean class="org.openmrs.module.cohort.api.impl.CohortMemberServiceImpl">
+				<constructor-arg ref="cohortMemberDao" />
+				<constructor-arg ref="cohortMemberAttributeTypeDao" />
+				<constructor-arg ref="cohortMemberAttributeDao" />
+			</bean>
+		</property>
         <property name="preInterceptors" ref="serviceInterceptors"/>
         <property name="transactionAttributeSource" ref="transactionAttributeSource"/>
     </bean>
@@ -51,7 +63,11 @@
 
     <bean id="cohort.cohortTypeService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager" ref="transactionManager"/>
-        <property name="target" ref="cohort.cohortTypeServiceImpl"/>
+        <property name="target">
+			<bean class="org.openmrs.module.cohort.api.impl.CohortTypeServiceImpl">
+				<constructor-arg ref="cohortTypeDao" />
+			</bean>
+		</property>
         <property name="preInterceptors" ref="serviceInterceptors"/>
         <property name="transactionAttributeSource" ref="transactionAttributeSource"/>
     </bean>
@@ -63,4 +79,34 @@
             </list>
         </property>
     </bean>
+    
+    <bean id="cohortDao" class="org.openmrs.module.cohort.api.dao.CohortDao">
+    	<constructor-arg ref="sessionFactory" />
+		<constructor-arg ref="cohort.search.cohortSearchHandler" />
+	</bean>	
+	<bean id="cohortAttributeDao" class="org.openmrs.module.cohort.api.dao.CohortAttributeDao">
+    	<constructor-arg ref="sessionFactory" />
+		<constructor-arg ref="cohort.search.cohortSearchHandler" />
+	</bean>	
+	<bean id="cohortAttributeTypeDao" class="org.openmrs.module.cohort.api.dao.CohortAttributeTypeDao">
+    	<constructor-arg ref="sessionFactory" />
+		<constructor-arg ref="cohort.search.cohortSearchHandler" />
+	</bean>	
+    <bean id="cohortMemberDao" class="org.openmrs.module.cohort.api.dao.CohortMemberDao">
+    	<constructor-arg ref="sessionFactory" />
+		<constructor-arg ref="cohort.search.cohortSearchHandler" />
+	</bean>	
+	<bean id="cohortMemberAttributeTypeDao" class="org.openmrs.module.cohort.api.dao.CohortMemberAttributeTypeDao">
+    	<constructor-arg ref="sessionFactory" />
+		<constructor-arg ref="cohort.search.cohortSearchHandler" />
+	</bean>
+	<bean id="cohortMemberAttributeDao" class="org.openmrs.module.cohort.api.dao.CohortMemberAttributeDao">
+    	<constructor-arg ref="sessionFactory" />
+		<constructor-arg ref="cohort.search.cohortSearchHandler" />
+	</bean>
+    <bean id="cohortTypeDao" class="org.openmrs.module.cohort.api.dao.CohortTypeDao">
+    	<constructor-arg ref="sessionFactory" />
+		<constructor-arg ref="cohort.search.cohortSearchHandler" />
+	</bean>	
+	
 </beans>
