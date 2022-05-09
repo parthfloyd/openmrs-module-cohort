@@ -57,6 +57,7 @@
     </changeSet>
     <changeSet id="cohortattritype1065" author="sharon">
         <validCheckSum>3:438b0d7c1f87e1930fc8514e764a006c</validCheckSum>
+        <validCheckSum>8:7e8d21d7716deb36429dafaa23d3d685</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="cohort_attribute_type"/>
@@ -161,6 +162,7 @@
     <!--Rename value to value_reference -->
     <changeSet id="cohortattribute1065" author="sharon">
         <validCheckSum>3:17c3a2138b042e7572bbcdb959ba225c</validCheckSum>
+        <validCheckSum>8:a495f2c0c4e90e7c96e4f387cd4bc284</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="cohort_attribute"/>
