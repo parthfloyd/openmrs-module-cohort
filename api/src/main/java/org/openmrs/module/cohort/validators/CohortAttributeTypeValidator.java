@@ -9,18 +9,20 @@
  */
 package org.openmrs.module.cohort.validators;
 
+import org.openmrs.annotation.Handler;
 import org.openmrs.module.cohort.CohortAttributeType;
 import org.openmrs.module.cohort.api.CohortService;
+import org.openmrs.validator.BaseAttributeTypeValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 @Component
+@Handler(supports = { CohortAttributeType.class }, order = 50)
 @Qualifier("cohort.cohortAttributeTypeValidator")
-public class CohortAttributeTypeValidator implements Validator {
+public class CohortAttributeTypeValidator extends BaseAttributeTypeValidator<CohortAttributeType> implements Validator {
 	
 	private final CohortService cohortService;
 	
@@ -36,9 +38,7 @@ public class CohortAttributeTypeValidator implements Validator {
 	
 	@Override
 	public void validate(Object command, Errors errors) {
-		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "required");
-		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "description", "required");
-		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "format", "required");
+		super.validate(command, errors);
 		
 		CohortAttributeType cohortAttributeType = (CohortAttributeType) command;
 		CohortAttributeType attributeType = cohortService.getAttributeTypeByName(cohortAttributeType.getName());

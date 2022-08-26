@@ -9,6 +9,8 @@
  */
 package org.openmrs.module.cohort.validators;
 
+import org.openmrs.Cohort;
+import org.openmrs.annotation.Handler;
 import org.openmrs.module.cohort.CohortM;
 import org.openmrs.module.cohort.api.CohortService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 @Component
+@Handler(supports = { CohortM.class, Cohort.class }, order = 50)
 @Qualifier("cohort.cohortMValidator")
 public class CohortMValidator implements Validator {
 	
@@ -31,29 +34,32 @@ public class CohortMValidator implements Validator {
 	
 	@Override
 	public boolean supports(Class<?> clazz) {
-		return clazz.equals(CohortM.class);
+		return clazz.equals(CohortM.class) || clazz.equals(Cohort.class);
 	}
 	
 	@Override
 	public void validate(Object command, Errors errors) {
+		if (command instanceof Cohort) {
+			errors.reject("A standard cohort should not be created while the cohort module is active");
+			return;
+		}
+		
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "Cohort Name Required");
-		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "description", "Cohort Description Required");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "startDate", "Cohort Start Date Required");
-		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "endDate", "Cohort End Date Required");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "definitionHandlerClassname",
-		    "Cohort definitionHandlerClassname is Required");
+		    "Cohort definitionHandlerClassname is required");
 		
 		CohortM cohort = (CohortM) command;
-		
-		//EndDate should less than startDate
-		if (cohort.getStartDate().compareTo(cohort.getEndDate()) > 0) {
-			errors.rejectValue("startDate", "Start date should be less than End date");
-		}
 		
 		//Cohort should have a unique name
 		CohortM cohortByName = cohortService.getCohort(cohort.getName());
 		if (cohortByName != null) {
 			errors.rejectValue("name", "A cohort with this name already exists");
+		}
+		
+		//EndDate should less than startDate
+		if (cohort.getEndDate() != null && cohort.getEndDate().before(cohort.getStartDate())) {
+			errors.rejectValue("startDate", "Start date should be before the end date");
 		}
 	}
 }

@@ -9,6 +9,7 @@
  */
 package org.openmrs.module.cohort.validators;
 
+import org.openmrs.annotation.Handler;
 import org.openmrs.module.cohort.CohortType;
 import org.openmrs.module.cohort.api.CohortTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 @Component
+@Handler(supports = { CohortType.class }, order = 50)
 @Qualifier("cohort.cohortTypeValidator")
 public class CohortTypeValidator implements Validator {
 	
