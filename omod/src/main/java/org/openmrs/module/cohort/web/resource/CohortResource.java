@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.cohort.CohortAttribute;
 import org.openmrs.module.cohort.CohortM;
@@ -46,15 +47,6 @@ import org.openmrs.module.webservices.rest.web.response.ResponseException;
 @Resource(name = RestConstants.VERSION_1 + CohortMainRestController.COHORT_NAMESPACE
         + "/cohort", supportedClass = CohortM.class, supportedOpenmrsVersions = { "1.8 - 2.*" })
 public class CohortResource extends DataDelegatingCrudResource<CohortM> {
-	
-	private final CohortService cohortService;
-	
-	private final CohortTypeService cohortTypeService;
-	
-	public CohortResource() {
-		this.cohortService = Context.getService(CohortService.class);
-		this.cohortTypeService = Context.getService(CohortTypeService.class);
-	}
 	
 	@Override
 	public DelegatingResourceDescription getRepresentationDescription(Representation rep) {
@@ -138,17 +130,17 @@ public class CohortResource extends DataDelegatingCrudResource<CohortM> {
 				cohortMember.setEndDate(cohort.getEndDate());
 			}
 		}
-		return cohortService.saveCohort(cohort);
+		return Context.getService(CohortService.class).saveCohort(cohort);
 	}
 	
 	@Override
 	protected void delete(CohortM cohort, String reason, RequestContext request) throws ResponseException {
-		cohortService.voidCohort(cohort, reason);
+		Context.getService(CohortService.class).voidCohort(cohort, reason);
 	}
 	
 	@Override
 	public void purge(CohortM cohort, RequestContext request) throws ResponseException {
-		cohortService.purgeCohort(cohort);
+		Context.getService(CohortService.class).purgeCohort(cohort);
 	}
 	
 	@Override
@@ -158,12 +150,12 @@ public class CohortResource extends DataDelegatingCrudResource<CohortM> {
 	
 	@Override
 	public CohortM getByUniqueId(String uuid) {
-		return cohortService.getCohortByUuid(uuid);
+		return Context.getService(CohortService.class).getCohortByUuid(uuid);
 	}
 	
 	@Override
 	protected PageableResult doGetAll(RequestContext context) throws ResponseException {
-		Collection<CohortM> cohort = cohortService.findAll();
+		Collection<CohortM> cohort = Context.getService(CohortService.class).findAll();
 		return new NeedsPaging<>(new ArrayList<>(cohort), context);
 	}
 	
@@ -184,18 +176,24 @@ public class CohortResource extends DataDelegatingCrudResource<CohortM> {
 				    });
 			}
 			catch (Exception e) {
-				throw new RuntimeException("Invalid format for parameter 'attributes'", e);
+				throw new APIException("Invalid format for parameter 'attributes'", e);
 			}
 		}
+		
 		if (StringUtils.isNotBlank(cohortType)) {
-			type = cohortTypeService.getByName(cohortType);
+			CohortTypeService typeService = Context.getService(CohortTypeService.class);
+			type = typeService.getByName(cohortType);
 			if (type == null) {
-				type = cohortTypeService.getByUuid(cohortType);
+				type = typeService.getByUuid(cohortType);
 			}
+			
 			if (type == null) {
-				throw new RuntimeException("No Cohort Type By Name/Uuid Found Matching The Supplied Parameter");
+				throw new RuntimeException(
+				        "Could not find a Cohort Type matching '" + cohortType + "' either by name or UUID");
 			}
 		}
+		
+		CohortService cohortService = Context.getService(CohortService.class);
 		
 		if (StringUtils.isNotBlank(location)) {
 			Collection<CohortM> cohorts = cohortService.findCohortByLocationUuid(location);

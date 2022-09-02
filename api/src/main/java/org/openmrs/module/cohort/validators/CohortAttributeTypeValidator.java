@@ -10,10 +10,10 @@
 package org.openmrs.module.cohort.validators;
 
 import org.openmrs.annotation.Handler;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.cohort.CohortAttributeType;
 import org.openmrs.module.cohort.api.CohortService;
 import org.openmrs.validator.BaseAttributeTypeValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -23,13 +23,6 @@ import org.springframework.validation.Validator;
 @Handler(supports = { CohortAttributeType.class }, order = 50)
 @Qualifier("cohort.cohortAttributeTypeValidator")
 public class CohortAttributeTypeValidator extends BaseAttributeTypeValidator<CohortAttributeType> implements Validator {
-	
-	private final CohortService cohortService;
-	
-	@Autowired
-	public CohortAttributeTypeValidator(@Qualifier("cohort.cohortService") CohortService cohortService) {
-		this.cohortService = cohortService;
-	}
 	
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -41,7 +34,8 @@ public class CohortAttributeTypeValidator extends BaseAttributeTypeValidator<Coh
 		super.validate(command, errors);
 		
 		CohortAttributeType cohortAttributeType = (CohortAttributeType) command;
-		CohortAttributeType attributeType = cohortService.getAttributeTypeByName(cohortAttributeType.getName());
+		CohortAttributeType attributeType = Context.getService(CohortService.class)
+		        .getAttributeTypeByName(cohortAttributeType.getName());
 		
 		if (attributeType != null) {
 			errors.rejectValue("name", " A cohort attribute type with the same name already exists");

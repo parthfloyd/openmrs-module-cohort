@@ -11,9 +11,9 @@ package org.openmrs.module.cohort.validators;
 
 import org.openmrs.Cohort;
 import org.openmrs.annotation.Handler;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.cohort.CohortM;
 import org.openmrs.module.cohort.api.CohortService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -24,13 +24,6 @@ import org.springframework.validation.Validator;
 @Handler(supports = { CohortM.class, Cohort.class }, order = 50)
 @Qualifier("cohort.cohortMValidator")
 public class CohortMValidator implements Validator {
-	
-	private final CohortService cohortService;
-	
-	@Autowired
-	public CohortMValidator(@Qualifier("cohort.cohortService") CohortService cohortService) {
-		this.cohortService = cohortService;
-	}
 	
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -51,13 +44,13 @@ public class CohortMValidator implements Validator {
 		
 		CohortM cohort = (CohortM) command;
 		
-		//Cohort should have a unique name
-		CohortM cohortByName = cohortService.getCohort(cohort.getName());
+		// Cohort should have a unique name
+		CohortM cohortByName = Context.getService(CohortService.class).getCohort(cohort.getName());
 		if (cohortByName != null) {
 			errors.rejectValue("name", "A cohort with this name already exists");
 		}
 		
-		//EndDate should less than startDate
+		// EndDate should less than startDate
 		if (cohort.getEndDate() != null && cohort.getEndDate().before(cohort.getStartDate())) {
 			errors.rejectValue("startDate", "Start date should be before the end date");
 		}

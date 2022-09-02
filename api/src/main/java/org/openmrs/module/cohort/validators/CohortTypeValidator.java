@@ -10,9 +10,9 @@
 package org.openmrs.module.cohort.validators;
 
 import org.openmrs.annotation.Handler;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.cohort.CohortType;
 import org.openmrs.module.cohort.api.CohortTypeService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -23,13 +23,6 @@ import org.springframework.validation.Validator;
 @Handler(supports = { CohortType.class }, order = 50)
 @Qualifier("cohort.cohortTypeValidator")
 public class CohortTypeValidator implements Validator {
-	
-	private final CohortTypeService cohortTypeService;
-	
-	@Autowired
-	public CohortTypeValidator(@Qualifier("cohort.cohortTypeService") CohortTypeService cohortTypeService) {
-		this.cohortTypeService = cohortTypeService;
-	}
 	
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -42,7 +35,7 @@ public class CohortTypeValidator implements Validator {
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "description", "required");
 		
 		CohortType currentType = (CohortType) command;
-		CohortType type = cohortTypeService.getByName(currentType.getName());
+		CohortType type = Context.getService(CohortTypeService.class).getByName(currentType.getName());
 		
 		if (type != null) {
 			errors.rejectValue("name", "A cohort type with the same name already exists");
