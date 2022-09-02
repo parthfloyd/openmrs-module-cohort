@@ -49,6 +49,10 @@ public class CohortM extends BaseCustomizableData<CohortAttribute> implements Au
 	
 	private static final long serialVersionUID = 1L;
 	
+	public CohortM() {
+		this.definitionHandlerClassname = DefaultCohortDefinitionHandler.class.getName();
+	}
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "cohort_id")
@@ -81,7 +85,7 @@ public class CohortM extends BaseCustomizableData<CohortAttribute> implements Au
 	private boolean groupCohort = false;
 	
 	@Column(name = "definition_handler", nullable = false)
-	private String definitionHandlerClassname = DefaultCohortDefinitionHandler.class.getName();
+	private String definitionHandlerClassname;
 	
 	@Lob
 	@Column(name = "definition_handler_config")

@@ -30,6 +30,13 @@ public class CohortMember extends BaseCustomizableData<CohortMemberAttribute> {
 	
 	private static final long serialVersionUID = 1L;
 	
+	public CohortMember() {
+	}
+	
+	public CohortMember(Patient patient) {
+		this.patient = patient;
+	}
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "cohort_member_id")
@@ -48,18 +55,6 @@ public class CohortMember extends BaseCustomizableData<CohortMemberAttribute> {
 	
 	@Column(name = "end_date")
 	private Date endDate;
-	
-	public CohortMember() {
-	}
-	
-	public CohortMember(Patient patient) {
-		if (patient != null) {
-			this.patient = patient;
-			if (patient.getUuid() != null) {
-				this.setUuid(patient.getUuid());
-			}
-		}
-	}
 	
 	public Date getStartDate() {
 		return startDate;
