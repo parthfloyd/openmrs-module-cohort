@@ -11,6 +11,7 @@ package org.openmrs.module.cohort.web.resource;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.openmrs.User;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.cohort.CohortAttribute;
@@ -126,7 +128,7 @@ public class CohortResource extends DataDelegatingCrudResource<CohortM> {
 			//end memberships if cohort is voided.
 			for (CohortMember cohortMember : cohort.getCohortMembers()) {
 				cohortMember.setVoided(true);
-				cohortMember.setVoidReason("Cohort Ended");
+				cohortMember.setVoidReason("Cohort voided");
 				cohortMember.setEndDate(cohort.getEndDate());
 			}
 		}
@@ -222,8 +224,16 @@ public class CohortResource extends DataDelegatingCrudResource<CohortM> {
 	 */
 	@PropertySetter("attributes")
 	public void setAttributes(CohortM cohort, List<CohortAttribute> attributes) {
-		for (CohortAttribute attribute : attributes) {
-			cohort.addAttribute(attribute);
+		if (attributes != null) {
+			User authenticatedUser = Context.getAuthenticatedUser();
+			Set<CohortAttribute> attributeSet = new HashSet<>(attributes);
+			cohort.getActiveAttributes().stream().filter(a -> !attributeSet.contains(a)).forEach(a -> {
+				a.setVoided(true);
+				a.setVoidReason("Attribute voided by API");
+				a.setVoidedBy(authenticatedUser);
+			});
+			
+			cohort.getActiveAttributes().addAll(attributeSet);
 		}
 	}
 	
@@ -240,5 +250,15 @@ public class CohortResource extends DataDelegatingCrudResource<CohortM> {
 	@PropertyGetter("cohortMembers")
 	public Set<CohortMember> getCohortMembers(CohortM cohort) {
 		return cohort.getActiveCohortMembers();
+	}
+	
+	@PropertySetter("cohortMembers")
+	public void setCohortMembers(CohortM cohort, List<CohortMember> members) {
+		if (members != null) {
+			Set<CohortMember> memberSet = new HashSet<>(members);
+			cohort.removeMemberships(
+			    cohort.getActiveCohortMembers().stream().filter(m -> !memberSet.contains(m)).toArray(CohortMember[]::new));
+			cohort.addMemberships(members.toArray(new CohortMember[0]));
+		}
 	}
 }
