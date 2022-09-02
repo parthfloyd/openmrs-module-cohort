@@ -38,7 +38,6 @@ public class CohortMValidator implements Validator {
 		}
 		
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "Cohort Name Required");
-		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "startDate", "Cohort Start Date Required");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "definitionHandlerClassname",
 		    "Cohort definitionHandlerClassname is required");
 		
