@@ -113,11 +113,11 @@ public class CohortResource extends DataDelegatingCrudResource<CohortM> {
 	private void addSharedDelegatingResourceProperties(DelegatingResourceDescription description) {
 		description.addRequiredProperty("name");
 		description.addProperty("description");
-		description.addRequiredProperty("location");
-		description.addRequiredProperty("startDate");
+		description.addProperty("location");
+		description.addProperty("startDate");
 		description.addProperty("endDate");
-		description.addRequiredProperty("cohortType");
-		description.addRequiredProperty("definitionHandlerClassname");
+		description.addProperty("cohortType");
+		description.addProperty("definitionHandlerClassname");
 		description.addProperty("attributes");
 		description.addProperty("cohortMembers");
 	}
