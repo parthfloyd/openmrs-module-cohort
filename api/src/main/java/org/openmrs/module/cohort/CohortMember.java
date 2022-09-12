@@ -25,7 +25,7 @@ import org.openmrs.BaseCustomizableData;
 import org.openmrs.Patient;
 
 @Entity
-@Table(name = "cohort_member")
+@Table(name = "COHORT_MEMBER")
 public class CohortMember extends BaseCustomizableData<CohortMemberAttribute> {
 	
 	private static final long serialVersionUID = 1L;

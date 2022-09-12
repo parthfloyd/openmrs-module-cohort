@@ -39,6 +39,11 @@
         </dependency>
         <dependency>
             <groupId>org.openmrs.module</groupId>
+            <artifactId>webservices.rest-omod-common</artifactId>
+            <classifier>tests</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
             <artifactId>legacyui-omod</artifactId>
         </dependency>
         <!-- End OpenMRS modules -->
@@ -68,6 +73,14 @@
             <scope>test</scope>
         </dependency>
         <!-- End OpenMRS core -->
+        
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 
     <build>
