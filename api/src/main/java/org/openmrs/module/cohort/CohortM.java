@@ -21,13 +21,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Where;
@@ -51,6 +51,7 @@ public class CohortM extends BaseCustomizableData<CohortAttribute> implements Au
 	
 	public CohortM() {
 		this.definitionHandlerClassname = DefaultCohortDefinitionHandler.class.getName();
+		this.groupCohort = false;
 	}
 	
 	@Id
@@ -82,7 +83,7 @@ public class CohortM extends BaseCustomizableData<CohortAttribute> implements Au
 	private Set<CohortMember> activeCohortMembers;
 	
 	@Column(name = "is_group_cohort", nullable = false)
-	private boolean groupCohort = false;
+	private boolean groupCohort;
 	
 	@Column(name = "definition_handler", nullable = false)
 	private String definitionHandlerClassname;
@@ -236,7 +237,6 @@ public class CohortM extends BaseCustomizableData<CohortAttribute> implements Au
 	 * @return CohortDefinitionHandler
 	 * @throws org.openmrs.api.APIException If fails to load cohortDefinitionHandlerClass
 	 */
-	@SneakyThrows
 	@SuppressWarnings("unchecked")
 	public CohortDefinitionHandler getDefinitionHandler() {
 		String definitionHandlerClassname = getDefinitionHandlerClassname();
@@ -279,7 +279,13 @@ public class CohortM extends BaseCustomizableData<CohortAttribute> implements Au
 			return handlers.get(0);
 		}
 		
-		return (CohortDefinitionHandler) definitionHandlerClass.getDeclaredConstructor().newInstance();
+		try {
+			return (CohortDefinitionHandler) definitionHandlerClass.getDeclaredConstructor().newInstance();
+		}
+		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			throw new APIException("CohortM.failed.load.definitionHandlerClass",
+					new Object[] { getDefinitionHandlerClassname() }, e);
+		}
 	}
 	
 	public int size() {
