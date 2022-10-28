@@ -82,8 +82,8 @@ public class CohortM extends BaseCustomizableData<CohortAttribute> implements Au
 	@Where(clause = "voided = 0 and (start_date is null or start_date <= current_timestamp()) and (end_date is null or end_date >= current_timestamp())")
 	private Set<CohortMember> activeCohortMembers;
 	
-	@Column(name = "is_group_cohort", nullable = false)
-	private boolean groupCohort;
+	@Column(name = "is_group_cohort")
+	private Boolean groupCohort;
 	
 	@Column(name = "definition_handler", nullable = false)
 	private String definitionHandlerClassname;
@@ -170,7 +170,7 @@ public class CohortM extends BaseCustomizableData<CohortAttribute> implements Au
 	 */
 	@Deprecated
 	public Boolean isGroupCohort() {
-		return groupCohort;
+		return groupCohort != null && groupCohort;
 	}
 	
 	public void setGroupCohort(Boolean groupCohort) {
