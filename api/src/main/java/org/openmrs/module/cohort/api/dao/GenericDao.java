@@ -18,6 +18,7 @@ import org.openmrs.module.cohort.api.dao.search.ISearchQuery;
 import org.openmrs.module.cohort.api.dao.search.PropValue;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 public interface GenericDao<W extends OpenmrsObject & Auditable> {
 	
 	ISearchQuery getSearchHandler();
@@ -27,6 +28,9 @@ public interface GenericDao<W extends OpenmrsObject & Auditable> {
 	
 	@Transactional(readOnly = true)
 	W get(final String uuid);
+	
+	@Transactional(readOnly = true)
+	W get(final String uuid, boolean includeRetired);
 	
 	W createOrUpdate(W object);
 	

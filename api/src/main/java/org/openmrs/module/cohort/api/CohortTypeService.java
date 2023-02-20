@@ -11,7 +11,11 @@ public interface CohortTypeService extends OpenmrsService {
 	
 	CohortType getByUuid(@NotNull String uuid);
 	
+	CohortType getByUuid(@NotNull String uuid, boolean includeVoided);
+	
 	CohortType getByName(@NotNull String name);
+	
+	CohortType getByName(@NotNull String name, boolean includeVoided);
 	
 	Collection<CohortType> findAll();
 	

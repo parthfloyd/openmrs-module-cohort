@@ -26,12 +26,22 @@ public class CohortTypeServiceImpl extends BaseOpenmrsService implements CohortT
 	
 	@Override
 	public CohortType getByUuid(@NotNull String uuid) {
-		return dao.get(uuid);
+		return getByUuid(uuid, false);
+	}
+	
+	@Override
+	public CohortType getByUuid(String uuid, boolean includeVoided) {
+		return dao.get(uuid, includeVoided);
 	}
 	
 	@Override
 	public CohortType getByName(@NotNull String name) {
-		return dao.findByUniqueProp(PropValue.builder().property("name").value(name).build());
+		return getByName(name, false);
+	}
+	
+	@Override
+	public CohortType getByName(String name, boolean includeVoided) {
+		return dao.findByUniqueProp(PropValue.builder().property("name").value(name).build(), includeVoided);
 	}
 	
 	@Override

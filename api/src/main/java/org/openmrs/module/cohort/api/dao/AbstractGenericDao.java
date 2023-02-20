@@ -60,8 +60,13 @@ public abstract class AbstractGenericDao<W extends OpenmrsObject & Auditable> im
 	
 	@Override
 	public W get(String uuid) {
+		return get(uuid, false);
+	}
+	
+	@Override
+	public W get(String uuid, boolean includeRetired) {
 		Criteria criteria = getCurrentSession().createCriteria(clazz);
-		includeRetiredObjects(criteria, false);
+		includeRetiredObjects(criteria, includeRetired);
 		return (W) criteria.add(eq("uuid", uuid)).uniqueResult();
 	}
 	

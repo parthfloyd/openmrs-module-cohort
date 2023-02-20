@@ -284,7 +284,7 @@ public class CohortM extends BaseCustomizableData<CohortAttribute> implements Au
 		}
 		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			throw new APIException("CohortM.failed.load.definitionHandlerClass",
-					new Object[] { getDefinitionHandlerClassname() }, e);
+			        new Object[] { getDefinitionHandlerClassname() }, e);
 		}
 	}
 	
