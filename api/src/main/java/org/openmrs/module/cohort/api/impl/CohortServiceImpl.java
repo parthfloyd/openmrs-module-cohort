@@ -85,7 +85,7 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 	}
 	
 	@Override
-	public void voidCohort(CohortM cohort, String reason) {
+	public void voidCohortM(CohortM cohort, String reason) {
 		if (cohort == null) {
 			return;
 		}

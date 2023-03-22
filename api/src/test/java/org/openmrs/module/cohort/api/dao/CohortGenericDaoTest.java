@@ -21,7 +21,9 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.cohort.CohortM;
+import org.openmrs.module.cohort.api.CohortService;
 import org.openmrs.module.cohort.api.dao.search.PropValue;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,5 +148,15 @@ public class CohortGenericDaoTest extends BaseModuleContextSensitiveTest {
 		dao.createOrUpdate(cohortToVoid);
 		
 		assertThat(dao.get(COHORT_UUID), nullValue());
+	}
+	
+	@Test
+	public void shouldVoidCohortM() {
+		CohortM cohortToVoid = dao.get(COHORT_UUID);
+		assertThat(false, equalTo(cohortToVoid.getVoided()));
+		Context.getService(CohortService.class).voidCohortM(cohortToVoid, "delete cohort");
+		assertThat(true, equalTo(cohortToVoid.getVoided()));
+		CohortM voidedCohortM = dao.get(COHORT_UUID);
+		assertThat(voidedCohortM, nullValue());
 	}
 }
