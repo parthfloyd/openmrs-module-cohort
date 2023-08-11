@@ -20,54 +20,78 @@ import org.openmrs.module.cohort.CohortAttribute;
 import org.openmrs.module.cohort.CohortAttributeType;
 import org.openmrs.module.cohort.CohortM;
 import org.openmrs.module.cohort.CohortType;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface CohortService extends OpenmrsService {
 	
-	CohortM getCohort(@NotNull String name);
+	@Transactional(readOnly = true)
+	CohortM getCohortM(@NotNull String name);
 	
-	CohortM getCohort(@NotNull int id);
+	@Transactional(readOnly = true)
+	CohortM getCohortM(@NotNull int id);
 	
-	CohortM getCohortByUuid(@NotNull String uuid);
+	@Transactional(readOnly = true)
+	CohortM getCohortMByUuid(@NotNull String uuid);
 	
-	Collection<CohortM> findCohortByLocationUuid(@NotNull String locationUuid);
+	@Transactional(readOnly = true)
+	Collection<CohortM> findCohortMByLocationUuid(@NotNull String locationUuid);
 	
-	Collection<CohortM> findCohortByPatientUuid(@NotNull String patientUuid);
+	@Transactional(readOnly = true)
+	Collection<CohortM> findCohortMByPatientUuid(@NotNull String patientUuid);
 	
+	@Transactional(readOnly = true)
 	Collection<CohortM> findAll();
 	
-	CohortM saveCohort(@NotNull CohortM cohortType);
+	@Transactional
+	CohortM saveCohortM(@NotNull CohortM cohortType);
 	
+	@Transactional
 	void voidCohortM(@NotNull CohortM cohort, String reason);
 	
-	void purgeCohort(@NotNull CohortM cohortType);
+	@Transactional
+	void purgeCohortM(@NotNull CohortM cohortType);
 	
-	CohortAttribute getAttributeByUuid(@NotNull String uuid);
+	@Transactional(readOnly = true)
+	CohortAttribute getCohortAttributeByUuid(@NotNull String uuid);
 	
-	CohortAttribute saveAttribute(@NotNull CohortAttribute attribute);
+	@Transactional
+	CohortAttribute saveCohortAttribute(@NotNull CohortAttribute attribute);
 	
-	Collection<CohortAttribute> findAttributesByCohortUuid(@NotNull String cohortUuid);
+	@Transactional(readOnly = true)
+	Collection<CohortAttribute> findCohortAttributesByCohortUuid(@NotNull String cohortUuid);
 	
-	Collection<CohortAttribute> findAttributesByTypeUuid(@NotNull String attributeTypeUuid);
+	@Transactional(readOnly = true)
+	Collection<CohortAttribute> findCohortAttributesByTypeUuid(@NotNull String attributeTypeUuid);
 	
-	Collection<CohortAttribute> findAttributesByTypeName(@NotNull String attributeTypeName);
+	@Transactional(readOnly = true)
+	Collection<CohortAttribute> findCohortAttributesByTypeName(@NotNull String attributeTypeName);
 	
+	@Transactional
 	void voidCohortAttribute(@NotNull CohortAttribute attribute, String retiredReason);
 	
+	@Transactional
 	void purgeCohortAttribute(@NotNull CohortAttribute attribute);
 	
-	CohortAttributeType getAttributeTypeByUuid(@NotNull String uuid);
+	@Transactional(readOnly = true)
+	CohortAttributeType getCohortAttributeTypeByUuid(@NotNull String uuid);
 	
-	CohortAttributeType getAttributeTypeByName(@NotNull String name);
+	@Transactional(readOnly = true)
+	CohortAttributeType getCohortAttributeTypeByName(@NotNull String name);
 	
-	Collection<CohortAttributeType> findAllAttributeTypes();
+	@Transactional(readOnly = true)
+	Collection<CohortAttributeType> findAllCohortAttributeTypes();
 	
-	CohortAttributeType saveAttributeType(@NotNull CohortAttributeType attributeType);
+	@Transactional
+	CohortAttributeType saveCohortAttributeType(@NotNull CohortAttributeType attributeType);
 	
-	void voidAttributeType(@NotNull CohortAttributeType attributeType, String retiredReason);
+	@Transactional
+	void voidCohortAttributeType(@NotNull CohortAttributeType attributeType, String retiredReason);
 	
-	void purgeAttributeType(@NotNull CohortAttributeType attributeType);
+	@Transactional
+	void purgeCohortAttributeType(@NotNull CohortAttributeType attributeType);
 	
 	//Search
-	List<CohortM> findMatchingCohorts(String nameMatching, Map<String, String> attributes, CohortType cohortType,
+	@Transactional(readOnly = true)
+	List<CohortM> findMatchingCohortMs(String nameMatching, Map<String, String> attributes, CohortType cohortType,
 	        boolean includeVoided);
 }

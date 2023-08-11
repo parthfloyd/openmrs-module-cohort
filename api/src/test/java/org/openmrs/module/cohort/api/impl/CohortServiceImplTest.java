@@ -65,7 +65,7 @@ public class CohortServiceImplTest {
 		
 		when(cohortDao.createOrUpdate(cohortM)).thenReturn(cohortM);
 		
-		CohortM result = cohortService.saveCohort(cohortM);
+		CohortM result = cohortService.saveCohortM(cohortM);
 		assertThat(result, notNullValue());
 		assertThat(result.getId(), equalTo(12));
 	}
@@ -76,7 +76,7 @@ public class CohortServiceImplTest {
 		
 		when(cohortAttributeTypeDao.findAll()).thenReturn(Collections.singletonList(attributeType));
 		
-		Collection<CohortAttributeType> allAttributeTypes = cohortService.findAllAttributeTypes();
+		Collection<CohortAttributeType> allAttributeTypes = cohortService.findAllCohortAttributeTypes();
 		assertThat(allAttributeTypes, notNullValue());
 		assertThat(allAttributeTypes.size(), equalTo(1));
 	}
@@ -99,7 +99,7 @@ public class CohortServiceImplTest {
 		when(cohortAttribute.getCohortAttributeId()).thenReturn(345);
 		when(cohortAttributeDao.createOrUpdate(cohortAttribute)).thenReturn(cohortAttribute);
 		
-		CohortAttribute attribute = cohortService.saveAttribute(cohortAttribute);
+		CohortAttribute attribute = cohortService.saveCohortAttribute(cohortAttribute);
 		assertThat(attribute, notNullValue());
 		assertThat(attribute.getCohortAttributeId(), equalTo(345));
 	}
@@ -111,7 +111,7 @@ public class CohortServiceImplTest {
 		when(cohortM.getUuid()).thenReturn(COHORT_UUID);
 		when(cohortDao.get(COHORT_UUID)).thenReturn(cohortM);
 		
-		CohortM result = cohortService.getCohortByUuid(COHORT_UUID);
+		CohortM result = cohortService.getCohortMByUuid(COHORT_UUID);
 		assertThat(result, notNullValue());
 		assertThat(result.getUuid(), equalTo(COHORT_UUID));
 	}
@@ -124,7 +124,7 @@ public class CohortServiceImplTest {
 		when(cohortAttribute.getUuid()).thenReturn(COHORT_ATTRIBUTE_UUID);
 		when(cohortAttributeDao.get(COHORT_ATTRIBUTE_UUID)).thenReturn(cohortAttribute);
 		
-		CohortAttribute result = cohortService.getAttributeByUuid(COHORT_ATTRIBUTE_UUID);
+		CohortAttribute result = cohortService.getCohortAttributeByUuid(COHORT_ATTRIBUTE_UUID);
 		assertThat(result, notNullValue());
 		assertThat(result.getCohortAttributeId(), equalTo(12));
 		assertThat(result.getUuid(), equalTo(COHORT_ATTRIBUTE_UUID));
@@ -141,7 +141,7 @@ public class CohortServiceImplTest {
 		    PropValue.builder().associationPath(Optional.of("location")).property("uuid").value(locationUuid).build()))
 		            .thenReturn(Collections.singletonList(cohort));
 		
-		Collection<CohortM> cohortsByLocationUuid = cohortService.findCohortByLocationUuid(locationUuid);
+		Collection<CohortM> cohortsByLocationUuid = cohortService.findCohortMByLocationUuid(locationUuid);
 		assertThat(cohortsByLocationUuid, notNullValue());
 		assertThat(cohortsByLocationUuid, hasSize(1));
 		
