@@ -134,12 +134,7 @@ public class CohortMemberResource extends DataDelegatingCrudResource<CohortMembe
 	
 	@Override
 	public void purge(CohortMember cohortMember, RequestContext context) throws ResponseException {
-		boolean purge = Boolean.getBoolean(context.getParameter("purge"));
-		if (purge) {
-			Context.getService(CohortMemberService.class).purgeCohortMember(cohortMember);
-		} else {
-			Context.getService(CohortMemberService.class).voidCohortMember(cohortMember, "");
-		}
+		Context.getService(CohortMemberService.class).purgeCohortMember(cohortMember);
 	}
 	
 	@PropertySetter("attributes")
