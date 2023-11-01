@@ -11,6 +11,7 @@ package org.openmrs.module.cohort.api.dao;
 
 import java.util.Collection;
 
+import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.openmrs.Auditable;
 import org.openmrs.OpenmrsObject;
@@ -49,4 +50,5 @@ public interface GenericDao<W extends OpenmrsObject & Auditable> {
 	
 	Collection<W> findByAnd(Criterion... predicates);
 	
+	Criteria createCriteria();
 }

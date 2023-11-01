@@ -171,4 +171,9 @@ public abstract class AbstractGenericDao<W extends OpenmrsObject & Auditable> im
 			}
 		}
 	}
+	
+	@Override
+	public Criteria createCriteria() {
+		return getCurrentSession().createCriteria(clazz);
+	}
 }
