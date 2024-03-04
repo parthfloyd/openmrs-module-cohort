@@ -154,8 +154,11 @@ public class CohortMemberServiceImpl extends BaseOpenmrsService implements Cohor
 	@Override
 	@Transactional(readOnly = true)
 	public Collection<CohortMember> findCohortMembersByPatientUuid(String patientUuid) {
-		return cohortMemberDao.findBy(
-		    PropValue.builder().property("uuid").associationPath(Optional.of("patient")).value(patientUuid).build());
+		Criteria criteria = cohortMemberDao.createCriteria();
+		criteria.createAlias("patient", "patient");
+		criteria.add(Restrictions.eq("patient.uuid", patientUuid));
+		criteria.add(Restrictions.isNull("endDate"));
+		return criteria.list();
 	}
 	
 	@Override
