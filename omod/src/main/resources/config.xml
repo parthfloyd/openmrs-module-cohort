@@ -55,6 +55,21 @@
         CohortAttributeType.hbm.xml
     </mappingFiles>
 
+    <privilege>
+        <name>View Cohorts In Cohort Module</name>
+        <description>Allows to view Cohorts</description>
+    </privilege>
+
+    <privilege>
+        <name>Edit Cohorts In Cohort Module</name>
+        <description>Allows to edit Cohorts</description>
+    </privilege>
+
+    <privilege>
+        <name>Manage Cohorts In Cohort Module</name>
+        <description>Allows to manage Cohorts' metadata</description>
+    </privilege>
+
     <!-- Internationalization -->
     <!-- All message codes should start with ${project.parent.artifactId}. -->
     <messages>

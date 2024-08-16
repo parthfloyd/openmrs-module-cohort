@@ -27,7 +27,6 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-
 public class CohortTypeGenericDaoTest extends BaseModuleContextSensitiveTest {
 	
 	private static final String COHORT_TYPE_INITIAL_TEST_DATA_XML = "org/openmrs/module/cohort/api/hibernate/db/CohortTypeDaoTest_initialTestData.xml";
