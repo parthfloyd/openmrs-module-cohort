@@ -18,6 +18,9 @@ import java.util.Set;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
+import io.swagger.models.properties.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.User;
@@ -120,6 +123,65 @@ public class CohortResource extends DataDelegatingCrudResource<CohortM> {
 		description.addProperty("definitionHandlerClassname");
 		description.addProperty("attributes");
 		description.addProperty("cohortMembers");
+	}
+	
+	@Override
+	public Model getCREATEModel(Representation rep) {
+		ModelImpl model = new ModelImpl();
+		model.property("name", new StringProperty()).required("name");
+		model.property("description", new StringProperty());
+		model.property("location", new RefProperty("#/definitions/LocationCreate"));
+		model.property("startDate", new DateProperty());
+		model.property("endDate", new DateProperty());
+		model.property("cohortType", new RefProperty("#/definitions/CohortmCohorttypeCreate"));
+		model.property("definitionHandlerClassname", new StringProperty());
+		model.property("attributes", new ArrayProperty(new RefProperty("#/definitions/CohortmCohortmemberAttributeCreate")));
+		model.addProperty("cohortMembers", new ArrayProperty(new RefProperty("#/definitions/CohortMembershipCreate")));
+		model.property("voided", new BooleanProperty());
+		model.property("groupCohort", new BooleanProperty());
+		return model;
+	}
+	
+	@Override
+	public Model getGETModel(Representation rep) {
+		ModelImpl model = (ModelImpl) super.getGETModel(rep);
+		if (rep instanceof DefaultRepresentation) {
+			model.property("name", new StringProperty());
+			model.property("description", new StringProperty());
+			model.property("startDate", new DateProperty());
+			model.property("endDate", new DateProperty());
+			model.property("groupCohort", new BooleanProperty());
+			model.property("uuid", new StringProperty().example("uuid"));
+			model.property("location", new RefProperty("#/definitions/LocationGetRef"));
+			model.property("cohortType", new RefProperty("#/definitions/CohortmCohorttypeGetRef"));
+			model.property("attributes", new RefProperty("#/definitions/CohortmCohortmemberAttributeGetRef"));
+			model.property("voided", new BooleanProperty());
+			model.property("voidReason", new StringProperty());
+			model.property("display", new StringProperty());
+		} else if (rep instanceof FullRepresentation) {
+			model.property("name", new StringProperty());
+			model.property("description", new StringProperty());
+			model.property("startDate", new DateProperty());
+			model.property("endDate", new DateProperty());
+			model.property("groupCohort", new BooleanProperty());
+			model.property("location", new RefProperty("#/definitions/LocationGetFull"));
+			model.addProperty("cohortMembers", new ArrayProperty(new RefProperty("#/definitions/CohortMembershipGetFull")));
+			model.property("cohortType", new RefProperty("#/definitions/CohortmCohorttypeGetFull"));
+			model.property("attributes", new RefProperty("#/definitions/CohortmCohortmemberAttributeGetFull"));
+			model.property("voided", new BooleanProperty());
+			model.property("voidReason", new StringProperty());
+			model.property("display", new StringProperty());
+			model.property("auditInfo", new StringProperty());
+			model.property("uuid", new StringProperty().example("uuid"));
+		}
+		return model;
+	}
+	
+	@Override
+	public Model getUPDATEModel(Representation rep) {
+		ModelImpl model = (ModelImpl) getCREATEModel(rep);
+		model.property("voidReason", new StringProperty());
+		return model;
 	}
 	
 	@Override
