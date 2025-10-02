@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.openmrs.Location;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.cohort.CohortAttribute;
@@ -123,5 +124,5 @@ public interface CohortService extends OpenmrsService {
 	@Transactional(readOnly = true)
 	@Authorized(VIEW_COHORTS_PRIVILEGE)
 	List<CohortM> findMatchingCohortMs(String nameMatching, Map<String, String> attributes, CohortType cohortType,
-	        boolean includeVoided);
+	        Collection<Location> locations, boolean includeVoided);
 }

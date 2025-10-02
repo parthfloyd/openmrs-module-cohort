@@ -264,7 +264,7 @@ public class CohortResource extends DataDelegatingCrudResource<CohortM> {
 			return new NeedsPaging<>(new ArrayList<>(cohorts), context);
 		}
 		
-		List<CohortM> cohort = cohortService.findMatchingCohortMs(context.getParameter("q"), attributes, type,
+		List<CohortM> cohort = cohortService.findMatchingCohortMs(context.getParameter("q"), attributes, type, null,
 		    context.getIncludeAll());
 		return new NeedsPaging<>(cohort, context);
 		

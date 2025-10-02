@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.openmrs.Location;
 import org.openmrs.module.cohort.CohortM;
 import org.openmrs.module.cohort.CohortMember;
 import org.openmrs.module.cohort.CohortType;
@@ -26,7 +27,7 @@ public interface ISearchQuery {
 	
 	//Add cohort search methods
 	List<CohortM> findCohorts(String nameMatching, Map<String, String> attributes, CohortType cohortType,
-	        boolean includeVoided);
+	        Collection<Location> locations, boolean includeVoided);
 	
 	Collection<CohortMember> findCohortMembersByPatientNames(@NotNull String name);
 	

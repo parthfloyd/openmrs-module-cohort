@@ -20,6 +20,7 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
+import org.openmrs.Location;
 import org.openmrs.module.cohort.CohortM;
 import org.openmrs.module.cohort.CohortMember;
 import org.openmrs.module.cohort.CohortType;
@@ -30,7 +31,7 @@ import org.springframework.stereotype.Component;
 public class SearchQueryHandler extends AbstractSearchHandler implements ISearchQuery {
 	
 	public List<CohortM> findCohorts(String nameMatching, Map<String, String> attributes, CohortType cohortType,
-	        boolean includeVoided) {
+	        Collection<Location> locations, boolean includeVoided) {
 		Criteria criteria = getCurrentSession().createCriteria(CohortM.class);
 		criteria.add(eq("voided", includeVoided));
 		
@@ -53,6 +54,10 @@ public class SearchQueryHandler extends AbstractSearchHandler implements ISearch
 		
 		if (cohortType != null) {
 			criteria.add(Restrictions.eq("cohortType.cohortTypeId", cohortType.getCohortTypeId()));
+		}
+		
+		if (locations != null && !locations.isEmpty()) {
+			criteria.add(Restrictions.in("location", locations));
 		}
 		
 		criteria.setProjection(null).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);

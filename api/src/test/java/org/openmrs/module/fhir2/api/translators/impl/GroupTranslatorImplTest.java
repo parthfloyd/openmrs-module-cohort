@@ -3,6 +3,7 @@ package org.openmrs.module.fhir2.api.translators.impl;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,6 +17,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Group;
 import org.hl7.fhir.r4.model.Group.GroupMemberComponent;
 import org.hl7.fhir.r4.model.Group.GroupType;
@@ -26,11 +30,15 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.User;
+import org.openmrs.api.LocationService;
 import org.openmrs.api.PatientService;
 import org.openmrs.module.cohort.CohortM;
 import org.openmrs.module.cohort.CohortMember;
+import org.openmrs.module.cohort.CohortType;
+import org.openmrs.module.cohort.api.CohortTypeService;
 import org.openmrs.module.fhir2.api.translators.GroupMemberTranslator;
 import org.openmrs.module.fhir2.api.translators.GroupTranslator;
 import org.openmrs.module.fhir2.api.translators.PractitionerReferenceTranslator;
@@ -54,6 +62,12 @@ public class GroupTranslatorImplTest {
 	@Mock
 	private PractitionerReferenceTranslator<User> practitionerReferenceTranslator;
 	
+	@Mock
+	private CohortTypeService cohortTypeService;
+	
+	@Mock
+	private LocationService locationService;
+	
 	private GroupTranslatorImpl groupTranslator;
 	
 	@Before
@@ -62,6 +76,39 @@ public class GroupTranslatorImplTest {
 		groupTranslator.setPatientService(patientService);
 		groupTranslator.setGroupMemberTranslator(groupMemberTranslator);
 		groupTranslator.setPractitionerReferenceTranslator(practitionerReferenceTranslator);
+		groupTranslator.setCohortTypeService(cohortTypeService);
+		groupTranslator.setLocationService(locationService);
+	}
+	
+	@Test
+	public void toFhirResource_shouldIncludeListTypeAndLocationExtensions() {
+		CohortType cohortType = new CohortType();
+		cohortType.setUuid("type-uuid");
+		cohortType.setName("System List");
+		Location location = new Location(1);
+		location.setUuid("location-uuid");
+		location.setName("Inpatient Ward");
+		
+		CohortM cohort = new CohortM();
+		cohort.setCohortType(cohortType);
+		cohort.setLocation(location);
+		
+		Group group = groupTranslator.toFhirResource(cohort);
+		
+		Extension listTypeExtension = group.getExtensionByUrl("http://fhir.openmrs.org/ext/group/list-type");
+		assertThat(listTypeExtension, notNullValue());
+		assertThat(listTypeExtension.getValue(), instanceOf(CodeableConcept.class));
+		CodeableConcept listTypeConcept = (CodeableConcept) listTypeExtension.getValue();
+		assertThat(listTypeConcept.getText(), is("System List"));
+		Coding listTypeCoding = listTypeConcept.getCodingFirstRep();
+		assertThat(listTypeCoding.getCode(), is("type-uuid"));
+		
+		Extension locationExtension = group.getExtensionByUrl("http://fhir.openmrs.org/ext/group/location");
+		assertThat(locationExtension, notNullValue());
+		assertThat(locationExtension.getValue(), instanceOf(Reference.class));
+		Reference reference = (Reference) locationExtension.getValue();
+		assertThat(reference.getReference(), is("Location/location-uuid"));
+		assertThat(reference.getDisplay(), is("Inpatient Ward"));
 	}
 	
 	@Test(expected = NullPointerException.class)
@@ -193,5 +240,31 @@ public class GroupTranslatorImplTest {
 		CohortM translated = groupTranslator.toOpenmrsType(existing, group);
 		
 		assertThat(translated.getCohortMembers(), hasSize(0));
+	}
+	
+	@Test
+	public void toOpenmrsType_shouldApplyListTypeAndLocationExtensions() {
+		CohortType cohortType = new CohortType();
+		cohortType.setUuid("type-uuid");
+		Location location = new Location(1);
+		location.setUuid("location-uuid");
+		
+		when(cohortTypeService.getCohortTypeByUuid("type-uuid")).thenReturn(cohortType);
+		when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
+		
+		Group group = new Group();
+		CodeableConcept listTypeConcept = new CodeableConcept();
+		listTypeConcept.addCoding(new Coding().setSystem("http://fhir.openmrs.org/ext/group/list-type").setCode("type-uuid"))
+		        .setText("System List");
+		group.addExtension(new Extension("http://fhir.openmrs.org/ext/group/list-type", listTypeConcept));
+		group.addExtension(
+		    new Extension("http://fhir.openmrs.org/ext/group/location", new Reference("Location/location-uuid")));
+		
+		CohortM existing = new CohortM();
+		
+		CohortM translated = groupTranslator.toOpenmrsType(existing, group);
+		
+		assertThat(translated.getCohortType(), is(cohortType));
+		assertThat(translated.getLocation(), is(location));
 	}
 }

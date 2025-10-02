@@ -12,6 +12,8 @@ package org.openmrs.module.fhir2.providers;
 import javax.annotation.Nonnull;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import ca.uhn.fhir.rest.annotation.Create;
@@ -24,7 +26,11 @@ import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
+import ca.uhn.fhir.rest.param.ReferenceAndListParam;
+import ca.uhn.fhir.rest.param.ReferenceOrListParam;
+import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.StringParam;
+import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.SimpleBundleProvider;
 import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
@@ -32,11 +38,16 @@ import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Group;
 import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.r4.model.OperationOutcome;
+import org.openmrs.Location;
+import org.openmrs.api.LocationService;
 import org.openmrs.module.cohort.CohortM;
+import org.openmrs.module.cohort.CohortType;
 import org.openmrs.module.cohort.api.CohortService;
+import org.openmrs.module.cohort.api.CohortTypeService;
 import org.openmrs.module.fhir2.api.translators.GroupTranslator;
 import org.openmrs.module.fhir2.providers.util.FhirProviderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,15 +69,25 @@ public class GroupFhirResourceProvider implements IResourceProvider {
 	@Autowired
 	private GroupTranslator groupTranslator;
 	
+	@Autowired
+	private CohortTypeService cohortTypeService;
+	
+	@Autowired
+	private LocationService locationService;
+	
 	@Override
 	public Class<Group> getResourceType() {
 		return Group.class;
 	}
 	
 	@Search
-	public IBundleProvider searchGroups(@OptionalParam(name = "name") StringParam name) {
+	public IBundleProvider searchGroups(@OptionalParam(name = "name") StringParam name,
+	        @OptionalParam(name = "list-type") TokenParam listType,
+	        @OptionalParam(name = "location") ReferenceAndListParam location) {
 		String nameMatch = name != null ? name.getValue() : null;
-		List<CohortM> cohorts = cohortService.findMatchingCohortMs(nameMatch, null, null, false);
+		CohortType cohortType = resolveCohortType(listType);
+		Collection<Location> locations = resolveLocations(location);
+		List<CohortM> cohorts = cohortService.findMatchingCohortMs(nameMatch, null, cohortType, locations, false);
 		List<Group> results = new ArrayList<>(cohorts.size());
 		for (CohortM cohort : cohorts) {
 			results.add(groupTranslator.toFhirResource(cohort));
@@ -115,5 +136,53 @@ public class GroupFhirResourceProvider implements IResourceProvider {
 		}
 		cohortService.voidCohortM(cohort, "voided via FHIR request");
 		return FhirProviderUtils.buildDeleteR4();
+	}
+	
+	private CohortType resolveCohortType(TokenParam listType) {
+		if (listType == null || StringUtils.isBlank(listType.getValue())) {
+			return null;
+		}
+		
+		String value = listType.getValue();
+		CohortType cohortType = cohortTypeService.getCohortTypeByUuid(value);
+		if (cohortType == null) {
+			cohortType = cohortTypeService.getCohortTypeByName(value);
+		}
+		return cohortType;
+	}
+	
+	private Collection<Location> resolveLocations(ReferenceAndListParam locationParam) {
+		if (locationParam == null) {
+			return null;
+		}
+		
+		Collection<Location> locations = new HashSet<>();
+		for (ReferenceOrListParam orList : locationParam.getValuesAsQueryTokens()) {
+			for (ReferenceParam referenceParam : orList.getValuesAsQueryTokens()) {
+				Location location = resolveLocation(referenceParam);
+				if (location != null) {
+					locations.add(location);
+				}
+			}
+		}
+		
+		return locations.isEmpty() ? null : locations;
+	}
+	
+	private Location resolveLocation(ReferenceParam referenceParam) {
+		if (referenceParam == null) {
+			return null;
+		}
+		
+		Location location = null;
+		if (StringUtils.isNotBlank(referenceParam.getIdPart())) {
+			location = locationService.getLocationByUuid(referenceParam.getIdPart());
+		}
+		
+		if (location == null && StringUtils.isNotBlank(referenceParam.getValue())) {
+			location = locationService.getLocation(referenceParam.getValue());
+		}
+		
+		return location;
 	}
 }

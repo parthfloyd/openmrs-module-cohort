@@ -19,6 +19,7 @@ import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.openmrs.Location;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.cohort.CohortAttribute;
 import org.openmrs.module.cohort.CohortAttributeType;
@@ -176,7 +177,7 @@ public class CohortServiceImpl extends BaseOpenmrsService implements CohortServi
 	
 	@Override
 	public List<CohortM> findMatchingCohortMs(String nameMatching, Map<String, String> attributes, CohortType cohortType,
-	        boolean includeVoided) {
-		return cohortDao.getSearchHandler().findCohorts(nameMatching, attributes, cohortType, includeVoided);
+	        Collection<Location> locations, boolean includeVoided) {
+		return cohortDao.getSearchHandler().findCohorts(nameMatching, attributes, cohortType, locations, includeVoided);
 	}
 }
