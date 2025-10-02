@@ -21,4 +21,6 @@
                                 expression="org.openmrs.annotation.OpenmrsProfileExcludeFilter"/>
     </context:component-scan>
 
+    <bean class="org.openmrs.module.cohort.web.RestConstantsInitializer"/>
+
 </beans>
