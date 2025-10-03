@@ -70,6 +70,12 @@ We can analyze trends and patterns and this helps in research and policy making.
    1. Cohort Module
    2. REST web services
 
+## FHIR Group Resource Support
+
+The Cohort module also surfaces cohort data as FHIR R4 `Group` resources through the FHIR2 module. In addition to the existing
+create, read, update, and delete operations, the module now supports HTTP `PATCH` requests using JSON Patch or JSON Merge Patch
+payloads so clients can send partial updates to existing cohort groups.
+
 ***
 
 ## Resources

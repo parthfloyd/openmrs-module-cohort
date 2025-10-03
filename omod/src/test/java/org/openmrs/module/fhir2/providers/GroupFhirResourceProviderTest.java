@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -17,8 +18,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import ca.uhn.fhir.rest.api.Constants;
 import ca.uhn.fhir.rest.api.MethodOutcome;
+import ca.uhn.fhir.rest.api.PatchTypeEnum;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
+import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.param.ReferenceAndListParam;
 import ca.uhn.fhir.rest.param.ReferenceOrListParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
@@ -36,6 +40,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.openmrs.Location;
 import org.openmrs.api.LocationService;
@@ -240,6 +245,129 @@ public class GroupFhirResourceProviderTest {
 		when(cohortService.getCohortMByUuid(GROUP_UUID)).thenReturn(null);
 		
 		provider.updateGroup(id, new Group());
+	}
+	
+	@Test
+	public void patchGroup_shouldApplyJsonPatchAndPersistChanges() {
+		IdType id = new IdType("Group", GROUP_UUID);
+		CohortM existing = new CohortM();
+		CohortM updated = new CohortM();
+		CohortM saved = new CohortM();
+		Group translated = new Group();
+		translated.setName("Initial name");
+		Group savedGroup = new Group();
+		
+		when(cohortService.getCohortMByUuid(GROUP_UUID)).thenReturn(existing);
+		when(groupTranslator.toFhirResource(existing)).thenReturn(translated);
+		when(groupTranslator.toOpenmrsType(eq(existing), Mockito.any(Group.class))).thenReturn(updated);
+		when(cohortService.saveCohortM(updated)).thenReturn(saved);
+		when(groupTranslator.toFhirResource(saved)).thenReturn(savedGroup);
+		
+		String patchBody = "[{\"op\":\"replace\",\"path\":\"/name\",\"value\":\"Updated Group\"}]";
+		
+		RequestDetails requestDetails = Mockito.mock(RequestDetails.class);
+		when(requestDetails.getHeader("Content-Type")).thenReturn(null);
+		
+		MethodOutcome outcome = provider.patchGroup(id, PatchTypeEnum.JSON_PATCH, patchBody, requestDetails);
+		
+		assertThat(outcome.getResource(), is(savedGroup));
+		ArgumentCaptor<Group> patchedCaptor = ArgumentCaptor.forClass(Group.class);
+		verify(groupTranslator).toOpenmrsType(eq(existing), patchedCaptor.capture());
+		assertThat(patchedCaptor.getValue().getName(), notNullValue());
+		assertThat(patchedCaptor.getValue().getName(), is("Updated Group"));
+		verify(cohortService).saveCohortM(updated);
+		verify(groupTranslator).toFhirResource(existing);
+		verify(groupTranslator).toFhirResource(saved);
+		verify(requestDetails).getHeader(Constants.HEADER_CONTENT_TYPE);
+	}
+	
+	@Test
+	public void patchGroup_shouldApplyJsonMergePatchWhenContentTypeMatches() {
+		IdType id = new IdType("Group", GROUP_UUID);
+		CohortM existing = new CohortM();
+		CohortM updated = new CohortM();
+		CohortM saved = new CohortM();
+		Group translated = new Group();
+		translated.setName("Initial name");
+		Group savedGroup = new Group();
+		
+		when(cohortService.getCohortMByUuid(GROUP_UUID)).thenReturn(existing);
+		when(groupTranslator.toFhirResource(existing)).thenReturn(translated);
+		when(groupTranslator.toOpenmrsType(eq(existing), Mockito.any(Group.class))).thenReturn(updated);
+		when(cohortService.saveCohortM(updated)).thenReturn(saved);
+		when(groupTranslator.toFhirResource(saved)).thenReturn(savedGroup);
+		
+		RequestDetails requestDetails = Mockito.mock(RequestDetails.class);
+		when(requestDetails.getHeader("Content-Type")).thenReturn("application/merge-patch+json");
+		
+		String patchBody = "{\"name\":\"Updated Group\"}";
+		
+		MethodOutcome outcome = provider.patchGroup(id, PatchTypeEnum.JSON_PATCH, patchBody, requestDetails);
+		
+		assertThat(outcome.getResource(), is(savedGroup));
+		ArgumentCaptor<Group> patchedCaptor = ArgumentCaptor.forClass(Group.class);
+		verify(groupTranslator).toOpenmrsType(eq(existing), patchedCaptor.capture());
+		assertThat(patchedCaptor.getValue().getName(), notNullValue());
+		assertThat(patchedCaptor.getValue().getName(), is("Updated Group"));
+		verify(cohortService).saveCohortM(updated);
+		verify(requestDetails).getHeader(Constants.HEADER_CONTENT_TYPE);
+	}
+	
+	@Test
+	public void patchGroup_shouldApplyXmlPatchWhenRequested() {
+		IdType id = new IdType("Group", GROUP_UUID);
+		CohortM existing = new CohortM();
+		CohortM updated = new CohortM();
+		CohortM saved = new CohortM();
+		Group translated = new Group();
+		translated.setName("Initial name");
+		Group savedGroup = new Group();
+		
+		when(cohortService.getCohortMByUuid(GROUP_UUID)).thenReturn(existing);
+		when(groupTranslator.toFhirResource(existing)).thenReturn(translated);
+		when(groupTranslator.toOpenmrsType(eq(existing), Mockito.any(Group.class))).thenReturn(updated);
+		when(cohortService.saveCohortM(updated)).thenReturn(saved);
+		when(groupTranslator.toFhirResource(saved)).thenReturn(savedGroup);
+		
+		String patchBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+		        + "<diff xmlns=\"urn:ietf:params:xml:ns:xml-patch\" xmlns:f=\"http://hl7.org/fhir\">\n"
+		        + "  <replace sel=\"/f:Group/f:name/@value\">Updated Group</replace>\n" + "</diff>";
+		
+		MethodOutcome outcome = provider.patchGroup(id, PatchTypeEnum.XML_PATCH, patchBody, null);
+		
+		assertThat(outcome.getResource(), is(savedGroup));
+		ArgumentCaptor<Group> patchedCaptor = ArgumentCaptor.forClass(Group.class);
+		verify(groupTranslator).toOpenmrsType(eq(existing), patchedCaptor.capture());
+		assertThat(patchedCaptor.getValue().getName(), notNullValue());
+		assertThat(patchedCaptor.getValue().getName(), is("Updated Group"));
+		verify(cohortService).saveCohortM(updated);
+	}
+	
+	@Test
+	public void patchGroup_shouldValidateMissingId() {
+		try {
+			provider.patchGroup(null, PatchTypeEnum.JSON_PATCH, "[]", null);
+			fail("Expected InvalidRequestException to be thrown");
+		}
+		catch (InvalidRequestException ex) {
+			verifyNoInteractions(cohortService);
+			verifyNoInteractions(groupTranslator);
+		}
+	}
+	
+	@Test
+	public void patchGroup_shouldThrowWhenCohortNotFound() {
+		IdType id = new IdType("Group", GROUP_UUID);
+		when(cohortService.getCohortMByUuid(GROUP_UUID)).thenReturn(null);
+		
+		try {
+			provider.patchGroup(id, PatchTypeEnum.JSON_PATCH, "[]", null);
+			fail("Expected ResourceNotFoundException to be thrown");
+		}
+		catch (ResourceNotFoundException ex) {
+			verify(cohortService).getCohortMByUuid(GROUP_UUID);
+			verifyNoInteractions(groupTranslator);
+		}
 	}
 	
 	@Test

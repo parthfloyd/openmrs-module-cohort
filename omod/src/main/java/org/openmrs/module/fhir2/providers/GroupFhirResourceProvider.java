@@ -16,16 +16,21 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.Delete;
 import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.OptionalParam;
+import ca.uhn.fhir.rest.annotation.Patch;
 import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
 import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.annotation.Update;
+import ca.uhn.fhir.rest.api.Constants;
 import ca.uhn.fhir.rest.api.MethodOutcome;
+import ca.uhn.fhir.rest.api.PatchTypeEnum;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
+import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.param.ReferenceAndListParam;
 import ca.uhn.fhir.rest.param.ReferenceOrListParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
@@ -49,6 +54,8 @@ import org.openmrs.module.cohort.CohortType;
 import org.openmrs.module.cohort.api.CohortService;
 import org.openmrs.module.cohort.api.CohortTypeService;
 import org.openmrs.module.fhir2.api.translators.GroupTranslator;
+import org.openmrs.module.fhir2.api.util.JsonPatchUtils;
+import org.openmrs.module.fhir2.api.util.XmlPatchUtils;
 import org.openmrs.module.fhir2.providers.util.FhirProviderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -62,6 +69,8 @@ import org.springframework.stereotype.Component;
 @Setter(AccessLevel.PACKAGE)
 @Getter(AccessLevel.PROTECTED)
 public class GroupFhirResourceProvider implements IResourceProvider {
+	
+	private static final FhirContext FHIR_CONTEXT = FhirContext.forR4Cached();
 	
 	@Autowired
 	private CohortService cohortService;
@@ -125,6 +134,55 @@ public class GroupFhirResourceProvider implements IResourceProvider {
 		CohortM updated = groupTranslator.toOpenmrsType(existing, group);
 		CohortM saved = cohortService.saveCohortM(updated);
 		return FhirProviderUtils.buildUpdate(groupTranslator.toFhirResource(saved));
+	}
+	
+	@Patch
+	@SuppressWarnings("unused")
+	public MethodOutcome patchGroup(@IdParam IdType id, PatchTypeEnum patchType, @ResourceParam String patchBody,
+	        RequestDetails requestDetails) {
+		if (id == null || id.getIdPart() == null) {
+			throw new InvalidRequestException("id must be specified to patch");
+		}
+		
+		CohortM existing = cohortService.getCohortMByUuid(id.getIdPart());
+		if (existing == null) {
+			throw new ResourceNotFoundException("Could not find Group with Id " + id.getIdPart());
+		}
+		
+		Group translated = groupTranslator.toFhirResource(existing);
+		Group patched = applyPatch(translated, patchType, patchBody, requestDetails);
+		CohortM updated = groupTranslator.toOpenmrsType(existing, patched);
+		CohortM saved = cohortService.saveCohortM(updated);
+		
+		return FhirProviderUtils.buildPatch(groupTranslator.toFhirResource(saved));
+	}
+	
+	private Group applyPatch(Group original, PatchTypeEnum patchType, String patchBody, RequestDetails requestDetails) {
+		if (patchType == null) {
+			throw new InvalidRequestException("Patch type must be specified");
+		}
+		
+		if (patchType == PatchTypeEnum.JSON_PATCH) {
+			if (isJsonMergePatch(requestDetails)) {
+				return JsonPatchUtils.applyJsonMergePatch(FHIR_CONTEXT, original, patchBody);
+			}
+			return JsonPatchUtils.applyJsonPatch(FHIR_CONTEXT, original, patchBody);
+		}
+		
+		if (patchType == PatchTypeEnum.XML_PATCH) {
+			return XmlPatchUtils.applyXmlPatch(FHIR_CONTEXT, original, patchBody);
+		}
+		
+		throw new InvalidRequestException("Unsupported patch type: " + patchType.name());
+	}
+	
+	private boolean isJsonMergePatch(RequestDetails requestDetails) {
+		if (requestDetails == null) {
+			return false;
+		}
+		
+		String contentType = requestDetails.getHeader(Constants.HEADER_CONTENT_TYPE);
+		return contentType != null && contentType.equalsIgnoreCase("application/merge-patch+json");
 	}
 	
 	@Delete
